@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Jigawa State Polytechnic — SIWES Admin Dashboard</title>
+<link rel="icon" type="image/png" href="assets/jsp-logo.png" />
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.2/src/index.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --primary:#1B8FCB; --primary-mid:#2CA1DE; --primary-light:#4FB3E8;
+  --bg:#F4F5F6; --panel-bg:#FFFFFF; --neu-bg:#FFFFFF;
+  --neu-shadow-d:#d6dade; --neu-shadow-l:#ffffff;
+  --text:#1E2528; --text-muted:#6B7378;
+  --input-bg:#FFFFFF; --input-border:#D3D7DA; --input-bg-err:#FEF2F2;
+  --card-border:rgba(30,37,40,0.14); --card-border-solid:#D3D7DA;
+  --success:#16A34A; --error:#EF4444; --warning:#F59E0B; --info:#2563EB; --white:#FFFFFF;
+  --shadow-rgb:27,143,203;
+  --radius-card:12px; --radius-input:8px; --radius-btn:8px;
+  --overlay-grad:linear-gradient(150deg,#2CA1DE 0%,#1B8FCB 100%);
+  --brand-grad:linear-gradient(135deg,#8A96A0 0%,#1B8FCB 100%);
+  --content-max:1200px;
+  --med-icon:rgba(27,143,203,0.22);
+  --stat-amber:#F59E0B; --stat-blue:#2563EB;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-user-select:none;user-select:none}
+input,textarea,select,[contenteditable="true"]{-webkit-user-select:text;user-select:text}
+.drawer-title{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;}
+html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;transition:background 250ms ease,color 250ms ease}
+body{overflow-x:hidden;overscroll-behavior-y:none}
+.blob{position:fixed;border-radius:50%;filter:blur(90px);z-index:0;pointer-events:none}
+.blob1{width:500px;height:500px;background:rgba(27,143,203,0.12);top:-150px;left:-150px;animation:blobDrift1 22s ease-in-out infinite alternate}
+.blob2{width:420px;height:420px;background:rgba(var(--shadow-rgb),0.10);bottom:-120px;right:-120px;filter:blur(80px);animation:blobDrift2 18s ease-in-out infinite alternate}
+@keyframes blobDrift1{0%{transform:translate(0,0) scale(1)}100%{transform:translate(120px,80px) scale(1.15)}}
+@keyframes blobDrift2{0%{transform:translate(0,0) scale(1.1)}100%{transform:translate(-100px,-60px) scale(1)}}
+
+/* Medical snow background */
+.med-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.med-bg i{position:absolute;color:var(--med-icon);font-size:26px;top:-40px;animation:medFall linear infinite;opacity:.9}
+@keyframes medFall{
+  0%{transform:translateY(-40px) rotate(0deg);opacity:0}
+  10%{opacity:.9}
+  90%{opacity:.9}
+  100%{transform:translateY(105vh) rotate(360deg);opacity:0}
+}
+.receipt-med-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;border-radius:var(--radius-card);z-index:0}
+.receipt-med-bg i{position:absolute;color:var(--med-icon);font-size:22px;top:-30px;animation:medFall linear infinite;opacity:.8}
+@media print{
+  .med-bg,.receipt-med-bg,.blob{display:none !important}
+}
+
+#authScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100dvh;font-size:16px;color:var(--text-muted);gap:14px;position:relative;z-index:1;padding:20px;text-align:center}
+#authScreen .auth-logo-pulse{animation:authLogoPulse 0.85s cubic-bezier(0.45,0,0.55,1) infinite}
+#authScreen img{width:64px;height:64px;border-radius:14px;box-shadow:0 6px 20px rgba(var(--shadow-rgb),0.35)}
+@keyframes authLogoPulse{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{display:inline-block;animation:spin 0.8s linear infinite}
+
+.layout{position:relative;z-index:1}
+.topbar-shell{position:fixed;top:0;left:0;right:0;z-index:90;max-width:var(--content-max);margin:12px auto 0;padding-inline:clamp(64px,10vw,120px);pointer-events:none}
+@media(min-width:769px){
+  .topbar-shell{max-width:none;margin:14px 16px 0;padding-inline:0}
+}
+.topbar{position:relative;width:100%;padding:10px 20px;background:color-mix(in srgb, var(--panel-bg) 78%, transparent);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);box-shadow:0 10px 28px rgba(var(--shadow-rgb),0.12);display:flex;align-items:center;gap:14px;pointer-events:auto;transition:box-shadow 260ms ease}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-icon{width:42px;height:42px;border-radius:10px;background:var(--brand-grad);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(var(--shadow-rgb),0.35);border:2.5px solid #1B8FCB;color:#fff;font-size:22px;overflow:hidden;flex-shrink:0}
+.brand-icon img{width:100%;height:100%;object-fit:cover;display:block}
+.brand-name{font-weight:800;font-size:15px;color:var(--text);line-height:1.1;letter-spacing:.01em}
+.brand-kicker{font-weight:700;font-size:10px;color:var(--primary-mid);text-transform:uppercase;letter-spacing:0.12em;margin-top:2px}
+.top-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.icon-btn{width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:999px;border:1.5px solid var(--card-border-solid);background:var(--neu-bg);color:var(--text);cursor:pointer;font-size:18px;transition:all 220ms cubic-bezier(0.34,1.4,0.64,1)}
+.icon-btn:hover{transform:translateY(-2px) scale(1.08);box-shadow:0 4px 14px rgba(var(--shadow-rgb),0.18);border-color:var(--primary)}
+.icon-btn:active{transform:translateY(0) scale(0.95)}
+.icon-btn i{transition:transform 220ms cubic-bezier(0.34,1.56,0.64,1)}
+.icon-btn:hover i{transform:rotate(-8deg)}
+.logout-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:999px;background:rgba(239,68,68,0.10);color:var(--error);border:1px solid rgba(239,68,68,0.22);font:600 13px 'Inter';cursor:pointer;transition:all 180ms ease}
+.logout-btn:hover{background:rgba(239,68,68,0.18)}
+.desktop-logout-btn{display:inline-flex}
+@media(max-width:768px){.desktop-logout-btn{display:none}}
+.hamburger{display:none}
+
+.topnav-strip-wrapper{position:fixed;top:78px;z-index:89;left:0;right:0;max-width:var(--content-max);margin:14px auto 0;padding-inline:clamp(64px,10vw,120px);pointer-events:none}
+.topnav-strip-outer{padding:14px 16px;background:color-mix(in srgb, var(--panel-bg) 78%, transparent);backdrop-filter:blur(14px) saturate(160%);border:1.5px solid var(--card-border-solid);border-radius:24px;box-shadow:0 8px 24px rgba(var(--shadow-rgb),0.08);pointer-events:auto}
+.topnav-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.nav-item{display:flex;align-items:center;justify-content:center;gap:9px;padding:0 16px;min-height:44px;background:var(--neu-bg);border:1.5px solid var(--card-border-solid);border-radius:999px;color:var(--text-muted);font:700 13px 'Inter',sans-serif;opacity:.6;cursor:pointer;transition:all 200ms ease}
+.nav-item i{font-size:18px}
+.nav-item:hover{opacity:.9;transform:translateY(-1px)}
+.nav-item.active{color:#fff;border-color:transparent;background:var(--brand-grad);box-shadow:0 6px 20px rgba(var(--shadow-rgb),0.40);opacity:1}
+
+/* ===================== DESKTOP ISLAND SIDEBAR ===================== */
+/* Matches patient dashboard's .island component exactly (profile block with
+   name + role badge, nav with icon+label rows, footer with text lines),
+   adapted to admin's existing element ids (islandNav / islandNavList). */
+@media(min-width:769px){
+  .topnav-strip-wrapper{display:none !important}
+}
+:root{ --island-w-collapsed:68px; --island-w-expanded:250px; }
+.island-nav{
+  display:none;
+  position:fixed; top:var(--main-top-offset,90px); bottom:12px; left:16px; z-index:88;
+  width:var(--island-w-expanded);
+  background:color-mix(in srgb, var(--panel-bg) 86%, transparent);
+  backdrop-filter:blur(14px) saturate(160%); -webkit-backdrop-filter:blur(14px) saturate(160%);
+  border:1.5px solid var(--card-border-solid); border-radius:var(--radius-card);
+  box-shadow:0 10px 28px rgba(var(--shadow-rgb),0.14);
+  flex-direction:column; overflow:hidden;
+  transition:box-shadow 260ms ease;
+}
+@media(min-width:769px){ .island-nav{ display:flex } }
+.island-label{ display:inline-block; opacity:1; }
+
+.island-profile{ display:flex; align-items:center; gap:10px; padding:10px 14px 16px; flex-shrink:0; min-width:0; cursor:default; transition:transform 220ms ease }
+.island-profile:hover{ transform:translateX(2px) }
+.island-avatar{
+  width:38px; height:38px; border-radius:50%; background:var(--brand-grad); color:#fff;
+  display:flex; align-items:center; justify-content:center; font:800 14px 'Inter',sans-serif;
+  flex-shrink:0; box-shadow:0 4px 12px rgba(var(--shadow-rgb),0.30);
+  transition:transform 260ms cubic-bezier(0.34,1.56,0.64,1), box-shadow 260ms ease;
+}
+.island-avatar i{ font-size:18px; }
+.island-profile:hover .island-avatar{ transform:scale(1.08) rotate(-4deg); box-shadow:0 6px 18px rgba(var(--shadow-rgb),0.45) }
+.island-profile-meta{ min-width:0; overflow:hidden }
+.island-profile-name{ font:700 13.5px 'Inter',sans-serif; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.island-profile-badge{
+  display:inline-block; margin-top:3px; font:700 10px 'Inter',sans-serif; text-transform:uppercase; letter-spacing:.06em;
+  color:var(--primary); background:rgba(var(--shadow-rgb),0.10); border-radius:999px; padding:2px 8px; white-space:nowrap;
+  transition:background 220ms ease, letter-spacing 220ms ease;
+}
+.island-profile:hover .island-profile-badge{ background:rgba(var(--shadow-rgb),0.18); letter-spacing:.09em }
+
+.island-divider{ height:1px; background:var(--card-border-solid); margin:0 14px; flex-shrink:0; opacity:.7 }
+
+.island-nav-list{ flex:1; display:flex; flex-direction:column; gap:6px; padding:14px 10px; overflow-y:auto; overflow-x:hidden; min-height:0; scrollbar-width:none }
+.island-nav-list::-webkit-scrollbar{ display:none }
+.island-nav-item{
+  position:relative; display:flex; align-items:center; gap:12px; min-height:44px;
+  border-radius:14px; padding:0 13px; color:var(--text-muted); background:transparent; border:none;
+  cursor:pointer; font:700 13px 'Inter',sans-serif; transition:background 220ms ease, color 220ms ease, transform 220ms cubic-bezier(0.34,1.56,0.64,1), box-shadow 220ms ease;
+  text-align:left; width:100%; justify-content:flex-start;
+  opacity:0; transform:translateX(-10px); animation:islandItemIn 420ms ease forwards;
+}
+@keyframes islandItemIn{ to{ opacity:1; transform:translateX(0) } }
+.island-nav-item:nth-child(1){ animation-delay:40ms }
+.island-nav-item:nth-child(2){ animation-delay:80ms }
+.island-nav-item:nth-child(3){ animation-delay:120ms }
+.island-nav-item:nth-child(4){ animation-delay:160ms }
+.island-nav-item:nth-child(5){ animation-delay:200ms }
+.island-nav-item:nth-child(6){ animation-delay:240ms }
+.island-nav-item:nth-child(7){ animation-delay:280ms }
+.island-nav-item:nth-child(8){ animation-delay:320ms }
+.island-nav-item i{ font-size:19px; flex-shrink:0; width:22px; text-align:center; transition:transform 260ms cubic-bezier(0.34,1.56,0.64,1) }
+.island-nav-item:hover{ background:rgba(var(--shadow-rgb),0.08); color:var(--text); transform:translateX(4px) }
+.island-nav-item:hover i{ transform:scale(1.15) rotate(-6deg) }
+.island-nav-item:active{ transform:translateX(4px) scale(0.97) }
+.island-nav-item.active{ background:rgba(var(--shadow-rgb),0.12); color:var(--primary); box-shadow:0 2px 10px rgba(var(--shadow-rgb),0.10) }
+.island-nav-item.active::before{
+  content:''; position:absolute; left:-10px; top:8px; bottom:8px; width:4px; border-radius:0 4px 4px 0; background:var(--brand-grad);
+  transition:top 260ms cubic-bezier(0.34,1.56,0.64,1), bottom 260ms cubic-bezier(0.34,1.56,0.64,1);
+}
+.island-nav-item:focus-visible{ outline:2px solid var(--primary); outline-offset:2px }
+
+.island-footer{ flex-shrink:0; padding:14px; display:flex; align-items:center; gap:10px; min-width:0; cursor:default; transition:transform 220ms ease }
+.island-footer:hover{ transform:translateX(2px) }
+.island-footer-glyph{
+  width:30px; height:30px; border-radius:9px; background:rgba(var(--shadow-rgb),0.10); color:var(--primary);
+  display:flex; align-items:center; justify-content:center; font:800 11px 'Inter',sans-serif; flex-shrink:0;
+  transition:transform 260ms cubic-bezier(0.34,1.56,0.64,1);
+}
+.island-footer:hover .island-footer-glyph{ transform:scale(1.08) rotate(4deg) }
+.island-footer-lines{ min-width:0; overflow:hidden }
+.island-footer-lines div{ font-size:10.5px; line-height:1.5; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.island-footer-lines div:first-child{ font-weight:700; color:var(--text) }
+@media (prefers-reduced-motion:reduce){
+  .island-nav-item{ opacity:1; transform:none; animation:none }
+  .island-profile, .island-footer, .island-avatar, .island-footer-glyph, .island-profile-badge, .island-nav-item i{ transition:none }
+}
+
+.main{max-width:var(--content-max);margin:0 auto 60px;padding:clamp(24px,5vw,60px) clamp(64px,10vw,120px);padding-top:var(--main-top-offset,200px);position:relative;z-index:1}
+@media(min-width:769px){ .main{ max-width:none; padding-left:calc(16px + var(--island-w-expanded) + 24px); padding-right:32px } }
+.page{display:none}
+.page.active{display:block;animation:fadeUp 420ms cubic-bezier(0.22,1,0.36,1)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion:reduce){ .page.active{ animation:none } }
+
+.page-title{font-size:26px;font-weight:800;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.page-title::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--brand-grad)}
+.page-title-sub{font-size:13px;color:var(--text-muted);margin-bottom:20px;font-weight:500}
+.page-header-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.page-header-row .page-title{margin-bottom:0}
+.appt-header-row{align-items:center}
+#page-appointments .page-title{margin-bottom:14px}
+.page-header-actions{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap}
+.page-header-actions .custom-select-wrap{display:flex}
+.page-header-actions .custom-select-trigger{height:42px;padding-top:0;padding-bottom:0}
+.page-header-actions .btn-primary{height:42px;padding-top:0;padding-bottom:0}
+.page-header-actions .icon-btn{height:42px;width:42px;flex-shrink:0}
+
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-bottom:28px}
+.stat-card{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);padding:22px 24px;display:flex;align-items:center;gap:16px;box-shadow:0 4px 6px rgba(0,0,0,0.04),0 10px 24px rgba(var(--shadow-rgb),0.08);position:relative;overflow:hidden;transition:transform 260ms cubic-bezier(0.34,1.4,0.64,1),box-shadow 260ms ease,border-color 260ms ease}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--brand-grad);opacity:.35;transition:opacity 220ms ease}
+.stat-card:hover{transform:translateY(-5px) scale(1.015);box-shadow:0 8px 16px rgba(0,0,0,0.06),0 18px 38px rgba(var(--shadow-rgb),0.18);border-color:rgba(var(--shadow-rgb),0.35)}
+.stat-card:hover::before{opacity:1}
+.stat-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(27,143,203,0.15),rgba(44,161,222,0.10));border:1px solid rgba(var(--shadow-rgb),0.15);color:var(--primary);font-size:22px;flex-shrink:0;transition:transform 260ms cubic-bezier(0.34,1.56,0.64,1)}
+.stat-card:hover .stat-icon{transform:scale(1.1) rotate(-6deg)}
+.stat-icon.amber{background:linear-gradient(135deg,rgba(245,158,11,0.18),rgba(245,158,11,0.08));border-color:rgba(245,158,11,0.25);color:var(--stat-amber,#F59E0B)}
+.stat-icon.blue{background:linear-gradient(135deg,rgba(37,99,235,0.15),rgba(37,99,235,0.08));border-color:rgba(37,99,235,0.25);color:var(--stat-blue,#2563EB)}
+.stat-meta{display:flex;flex-direction:column;gap:4px;min-width:0}
+.stat-label{font-size:11px;text-transform:uppercase;letter-spacing:.07em;font-weight:600;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat-value{font-size:28px;font-weight:800;color:var(--text);line-height:1.1}
+.stat-value.small{font-size:18px;line-height:1.2}
+.stat-value .badge{margin-left:8px;vertical-align:middle;font-size:10px;padding:2px 8px}
+@media(max-width:480px){.stat-grid{grid-template-columns:1fr}}
+
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.section-title{font-size:15px;font-weight:700;color:var(--text)}
+
+.btn-primary{background:var(--brand-grad);color:#fff;border:none;border-radius:var(--radius-btn);padding:10px 20px;font:600 13px 'Inter';box-shadow:0 4px 14px rgba(var(--shadow-rgb),0.35);cursor:pointer;transition:all 220ms cubic-bezier(0.34,1.4,0.64,1);display:inline-flex;align-items:center;gap:6px}
+.btn-primary:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 6px 18px rgba(var(--shadow-rgb),0.45)}
+.btn-primary:active{transform:translateY(0) scale(0.98)}
+.btn-primary:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.btn-primary i{transition:transform 220ms cubic-bezier(0.34,1.56,0.64,1)}
+.btn-primary:hover i{transform:scale(1.15) rotate(-6deg)}
+.btn-secondary{background:var(--panel-bg);color:var(--text);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-btn);padding:10px 20px;font:600 13px 'Inter';cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all 220ms cubic-bezier(0.34,1.4,0.64,1)}
+.segmented{display:flex;background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:999px;padding:3px;gap:2px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;position:relative}
+.segmented::-webkit-scrollbar{display:none}
+.segmented-btn{border:none;background:transparent;color:var(--text-muted);font:600 12px 'Inter';padding:7px 16px;border-radius:999px;cursor:pointer;transition:all 180ms ease;flex-shrink:0;white-space:nowrap}
+.segmented-btn.active{background:var(--brand-grad);color:#fff}
+.segmented-wrap{position:relative}
+.segmented-wrap::after{content:'';position:absolute;top:0;right:0;bottom:0;width:28px;border-radius:0 999px 999px 0;background:linear-gradient(to right, transparent, var(--panel-bg) 70%);pointer-events:none;opacity:1;transition:opacity 160ms ease}
+.segmented-wrap.at-end::after{opacity:0}
+.btn-secondary:hover{background:color-mix(in srgb, var(--primary) 6%, var(--panel-bg));transform:translateY(-2px) scale(1.03);border-color:var(--primary)}
+.btn-secondary:active{transform:translateY(0) scale(0.98)}
+.btn-danger{background:rgba(239,68,68,0.10);color:var(--error);border:1px solid rgba(239,68,68,0.22);border-radius:var(--radius-btn);padding:8px 16px;font:600 12px 'Inter';cursor:pointer;transition:all 220ms cubic-bezier(0.34,1.4,0.64,1)}
+.btn-danger:hover{background:rgba(239,68,68,0.20);transform:translateY(-2px) scale(1.03)}
+.btn-danger:active{transform:translateY(0) scale(0.98)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.icon-btn.eye-btn{width:32px;height:32px;font-size:15px;color:var(--primary)}
+
+.table-wrap{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);overflow:hidden;box-shadow:0 4px 14px rgba(var(--shadow-rgb),0.06)}
+.table-scroll{overflow-x:auto;position:relative}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:rgba(var(--shadow-rgb),0.06);padding:12px 16px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:700;border-bottom:1.5px solid var(--card-border-solid);white-space:nowrap}
+td{padding:12px 16px;border-bottom:1px solid var(--card-border-solid);color:var(--text);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
+tr:last-child td{border-bottom:none}
+tbody tr:nth-child(odd) td{background:rgba(255,255,255,0.6)}
+tbody tr:nth-child(even) td{background:rgba(27,143,203,0.04)}
+td{transition:background 200ms ease}
+tbody tr:hover td{background:rgba(var(--shadow-rgb),0.08) !important}
+td.cell-id{font-family:'Inter',monospace;font-weight:700;font-style:italic;color:var(--primary);font-size:12.5px;letter-spacing:.04em}
+td.cell-date{font-weight:700;font-style:italic;color:var(--text);letter-spacing:.03em}
+.pay-drugs{font-size:11.5px;color:var(--text-muted);margin-top:2px}
+
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;text-transform:uppercase}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+.badge.pending,.badge.unpaid{color:#F59E0B;background:rgba(245,158,11,0.12)}
+.badge.approved,.badge.active,.badge.paid{color:#2CA1DE;background:rgba(27,143,203,0.12)}
+.badge.cancelled,.badge.missed{color:#EF4444;background:rgba(239,68,68,0.12)}
+.badge.deactivated{color:var(--text-muted);background:rgba(148,163,184,0.16)}
+.badge.completed,.badge.dispensed,.badge.pending_verification{color:#2563EB;background:rgba(37,99,235,0.12)}
+.badge.locked{color:var(--text-muted);background:rgba(148,163,184,0.16);gap:5px}
+
+.form-wrap{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);padding:24px;margin-bottom:24px;box-shadow:0 4px 14px rgba(var(--shadow-rgb),0.06)}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.form-field{display:flex;flex-direction:column;min-width:0}
+.form-field.full{grid-column:1 / -1}
+.form-label{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.form-input,.form-select,.form-textarea{width:100%;padding:11px 14px;background:var(--input-bg);color:var(--text);border:1.5px solid var(--input-border);border-radius:var(--radius-input);font:500 14px 'Inter',sans-serif;transition:border-color 180ms ease,box-shadow 180ms ease}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(var(--shadow-rgb),0.15);outline:none}
+.form-textarea{min-height:90px;resize:vertical}
+.form-actions{margin-top:20px;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.disclaimer{font-size:12px;color:var(--text-muted);font-style:italic;margin-top:12px}
+.form-input.is-invalid,.form-textarea.is-invalid,.custom-select-wrap.is-invalid .custom-select-trigger{border-color:var(--error) !important;background:var(--input-bg-err)}
+.field-error{font-size:11.5px;color:var(--error);margin-top:5px;font-weight:600;display:none}
+.field-error.show{display:block}
+.form-input.is-muted,.custom-select-wrap.is-muted .custom-select-trigger{background:rgba(148,163,184,0.10);color:var(--text-muted);cursor:not-allowed;opacity:.85}
+.form-input:disabled,.form-input[readonly]{background:rgba(148,163,184,0.10);color:var(--text-muted);cursor:not-allowed}
+
+.state-box{text-align:center;padding:48px 24px;color:var(--text-muted);font-size:14px}
+.state-box i{font-size:36px;display:block;margin-bottom:10px;color:var(--text-muted);opacity:.7}
+.state-box .cta{margin-top:14px}
+
+/* Skeleton shimmer */
+.sk{position:relative;overflow:hidden;background:rgba(148,163,184,0.14);border-radius:8px;display:inline-block}
+.sk::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.55),transparent);animation:shimmer 1.4s infinite}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.sk-line{display:block;height:12px;border-radius:6px;margin:4px 0}
+.sk-stat{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);padding:22px 24px;display:flex;align-items:center;gap:16px}
+.sk-stat .sk-circle{width:48px;height:48px;border-radius:14px}
+.sk-stat .sk-meta{flex:1}
+.sk-row{display:flex;gap:10px;padding:14px 16px;border-bottom:1px solid var(--card-border-solid)}
+.sk-row .sk-line{flex:1}
+.sk-rx{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);padding:18px 22px;margin-bottom:12px}
+
+/* Slot cards */
+.slots-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:8px}
+.slot-card{background:var(--neu-bg);border:1.5px solid var(--card-border-solid);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:6px;cursor:pointer;transition:all 180ms ease;position:relative}
+.slot-card:hover:not(.disabled){border-color:var(--primary);transform:translateY(-2px);box-shadow:0 6px 18px rgba(var(--shadow-rgb),0.15)}
+.slot-card.selected{border-color:var(--primary);background:color-mix(in srgb, var(--primary) 8%, var(--panel-bg));box-shadow:0 6px 18px rgba(var(--shadow-rgb),0.20)}
+.slot-card.disabled{opacity:.5;cursor:not-allowed}
+.slot-date{font-weight:700;font-size:13px;color:var(--text)}
+.slot-shift{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.slot-spots{font-size:12px;color:var(--primary);font-weight:600;margin-top:2px}
+
+.pagination-wrap{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;flex-wrap:wrap;gap:10px}
+.pagination-info{font-size:12px;color:var(--text-muted)}
+.pagination{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.page-pill{min-width:34px;height:34px;padding:0 10px;border-radius:999px;border:1.5px solid var(--card-border-solid);background:var(--neu-bg);color:var(--text-muted);font:600 12px 'Inter';cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all 220ms cubic-bezier(0.34,1.4,0.64,1)}
+.page-pill:hover:not(:disabled){color:var(--text);transform:translateY(-2px) scale(1.06);border-color:var(--primary)}
+.page-pill.active{background:var(--brand-grad);color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(var(--shadow-rgb),0.30)}
+.page-pill:disabled{opacity:.4;cursor:not-allowed}
+
+/* ============ TOASTS (pill capsule) ============ */
+#toastContainer{position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:520px;padding:16px 16px 0;box-sizing:border-box;pointer-events:none}
+:root{
+  --warn-ic:#F59E0B; --warn-tint:#FEF3E2; --warn-text:#7C4A03;
+  --info-ic:#2563EB; --info-tint:#E3EFFE; --info-text:#1E3A6E;
+  --succ-ic:#16A34A; --succ-tint:#E4F6EA; --succ-text:#14532D;
+  --err-ic:#EF4444;  --err-tint:#FDE9E9;  --err-text:#7A1F1F;
+}
+.toast{
+  background:var(--warn-tint);border-radius:16px;border:none;
+  box-shadow:0 8px 24px rgba(15,23,42,0.12);
+  padding:12px 44px 12px 14px;display:flex;gap:10px;align-items:center;position:relative;
+  opacity:0;transform:translateY(-120%);
+  transition:transform .55s cubic-bezier(0.34,1.56,0.64,1),opacity .25s;
+  pointer-events:auto;touch-action:none;cursor:grab;width:fit-content;max-width:100%
+}
+.toast.is-dragging{cursor:grabbing;transition:none !important}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.hide{opacity:0;transform:translateY(-120%)}
+.toast .toast-icon{width:26px;height:26px;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0;background:var(--warn-ic)}
+.toast-text{font-weight:600;font-size:0.9rem;line-height:1.3;color:var(--warn-text);white-space:normal;overflow-wrap:break-word}
+.toast.t-info{background:var(--info-tint)}
+.toast.t-info .toast-icon{background:var(--info-ic)}
+.toast.t-info .toast-text{color:var(--info-text)}
+.toast.t-success{background:var(--succ-tint)}
+.toast.t-success .toast-icon{background:var(--succ-ic)}
+.toast.t-success .toast-text{color:var(--succ-text)}
+.toast.t-error{background:var(--err-tint)}
+.toast.t-error .toast-icon{background:var(--err-ic)}
+.toast.t-error .toast-text{color:var(--err-text)}
+.toast.t-warning .toast-text{color:var(--warn-text)}
+.toast-close{position:absolute;top:50%;right:12px;transform:translateY(-50%);border:none;background:transparent;cursor:pointer;color:inherit;opacity:.5;font-size:14px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:999px}
+.toast-close:hover{opacity:.9;background:rgba(0,0,0,0.06)}
+@media(max-width:640px){
+  #toastContainer{padding:12px 12px 0;max-width:100%}
+  .toast{padding:10px 38px 10px 12px;gap:8px;width:100%}
+  .toast .toast-icon{width:24px;height:24px;font-size:13px}
+  .toast-text{font-size:0.84rem}
+}
+
+.modal-backdrop{position:fixed;inset:0;background:rgba(10,20,16,0.45);backdrop-filter:blur(10px);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 200ms ease;overflow-y:auto}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-card{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);padding:24px;max-width:440px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.30);animation:popIn 280ms cubic-bezier(0.34,1.5,0.64,1);max-height:90vh;max-height:90dvh;overflow-y:auto;position:relative}
+.modal-card.wide{max-width:560px}
+@keyframes popIn{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes popInCentered{from{transform:translate(-50%,-50%) scale(.92);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.modal-title{font-size:17px;font-weight:700;color:var(--text);margin-bottom:8px}
+.modal-msg{font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:20px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.modal-branded-head{display:flex;align-items:center;gap:12px;padding-bottom:16px;margin-bottom:16px;border-bottom:2px dashed var(--card-border-solid)}
+.modal-branded-head .brand-icon{width:46px;height:46px}
+.modal-branded-head h3{font-size:16px;font-weight:800;color:var(--primary);margin:0;line-height:1.2}
+.modal-branded-head p{font-size:11.5px;color:var(--text-muted);margin-top:2px}
+
+/* Wizard */
+.wizard-progress{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:20px}
+.wiz-dot{width:10px;height:10px;border-radius:50%;background:var(--card-border-solid);transition:all 220ms ease}
+.wiz-dot.active{background:var(--brand-grad);width:28px;border-radius:6px;box-shadow:0 2px 8px rgba(var(--shadow-rgb),0.35)}
+.wiz-dot.done{background:var(--primary)}
+.wiz-step{display:none;animation:fadeUp 300ms ease}
+.wiz-step.active{display:block}
+.wiz-step h4{font-size:15px;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.wiz-step h4 i{color:var(--primary);font-size:18px}
+.wiz-review{background:var(--neu-bg);border:1px solid var(--card-border-solid);border-radius:12px;padding:14px}
+.wiz-review .rvw-row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;gap:12px}
+.wiz-review .rvw-row strong{color:var(--text-muted);font-weight:600}
+.wiz-review .rvw-row span{color:var(--text);font-weight:600;text-align:right}
+
+.drawer-backdrop{position:fixed;inset:0;background:rgba(10,20,16,0.35);backdrop-filter:blur(10px);z-index:95;opacity:0;visibility:hidden;transition:opacity 280ms ease,visibility 280ms ease}
+.drawer-backdrop.open{opacity:1;visibility:visible}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(86vw,320px);background:var(--panel-bg);border-left:1px solid var(--card-border);border-top-left-radius:24px;border-bottom-left-radius:24px;box-shadow:-20px 0 50px rgba(0,0,0,0.25);transform:translateX(110%);transition:transform 380ms cubic-bezier(0.34,1.2,0.64,1);z-index:96;display:flex;flex-direction:column;padding:24px}
+.drawer.open{transform:translateX(0)}
+.drawer-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.drawer-nav{display:flex;flex-direction:column;gap:8px;padding:14px 4px;overflow-y:auto;flex:1}
+.drawer-nav .nav-item{justify-content:flex-start;width:100%;border-radius:999px;padding:12px 16px;min-height:0;font-size:14px;font-weight:500;background:var(--bg);border:none;color:var(--text);box-shadow:none;opacity:1 !important}
+.drawer-nav .nav-item:hover,.drawer-nav .nav-item.active{background:var(--brand-grad);color:#fff}
+.drawer-foot{padding-top:14px;border-top:1px solid var(--card-border-solid)}
+
+/* Custom select */
+.custom-select-wrap{position:relative;width:100%;font-family:'Inter',sans-serif;z-index:1}
+.custom-select-wrap.open{z-index:100}
+.custom-select-trigger{width:100%;padding:11px 14px;background:var(--input-bg);color:var(--text);border:1.5px solid var(--input-border);border-radius:var(--radius-input);font:500 14px 'Inter',sans-serif;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;transition:border-color 180ms ease,box-shadow 180ms ease;text-align:left}
+.custom-select-trigger:hover{border-color:var(--primary)}
+.custom-select-wrap.open .custom-select-trigger{border-color:var(--primary);box-shadow:0 0 0 3px rgba(var(--shadow-rgb),0.15)}
+.custom-select-trigger .cs-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.custom-select-trigger .cs-label.placeholder{color:var(--text-muted)}
+.custom-select-trigger .cs-caret{transition:transform 220ms ease;color:var(--text-muted);font-size:18px;flex-shrink:0}
+.custom-select-wrap.open .cs-caret{transform:rotate(180deg);color:var(--primary)}
+.custom-select-options{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-input);box-shadow:0 12px 30px rgba(var(--shadow-rgb),0.18);padding:6px;z-index:200;max-height:0;overflow:hidden;opacity:0;transform:translateY(-6px) scaleY(0.96);transform-origin:top center;transition:max-height 240ms cubic-bezier(0.34,1.2,0.64,1),opacity 200ms ease,transform 220ms cubic-bezier(0.34,1.2,0.64,1),padding 200ms ease;pointer-events:none}
+.custom-select-wrap.open .custom-select-options{max-height:280px;overflow-y:auto;opacity:1;transform:translateY(0) scaleY(1);pointer-events:auto}
+.cs-option{padding:10px 12px;border-radius:8px;font:500 13px 'Inter',sans-serif;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;transition:background 140ms ease}
+.cs-option:hover,.cs-option.focused{background:color-mix(in srgb, var(--primary) 8%, var(--panel-bg))}
+.cs-option.active{color:var(--primary);font-weight:700;background:color-mix(in srgb, var(--primary) 10%, var(--panel-bg))}
+.cs-option.disabled{color:var(--text-muted);cursor:not-allowed;opacity:.7}
+
+/* Profile banner + accordion */
+.profile-banner{background:linear-gradient(135deg,rgba(27,143,203,0.14),rgba(44,161,222,0.08));border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);padding:24px;display:flex;align-items:center;gap:18px;margin-bottom:20px;box-shadow:0 4px 14px rgba(var(--shadow-rgb),0.10);flex-wrap:wrap}
+.pb-avatar{width:76px;height:76px;border-radius:50%;background:var(--brand-grad);color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;box-shadow:0 6px 18px rgba(var(--shadow-rgb),0.30);flex-shrink:0}
+.pb-info{flex:1;min-width:0}
+.pb-name{font-size:20px;font-weight:800;color:var(--text)}
+.pb-email{font-size:13px;color:var(--text-muted);margin-top:2px;word-break:break-all}
+.fact-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:16px 0}
+.fact-card{display:flex;align-items:flex-start;gap:10px;background:var(--neu-bg);border:1.5px solid var(--card-border-solid);border-radius:14px;padding:12px 14px;min-width:0}
+.fact-card.full{grid-column:1 / -1}
+.fact-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,rgba(27,143,203,0.15),rgba(44,161,222,0.10));border:1px solid rgba(var(--shadow-rgb),0.15);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.fact-meta{min-width:0}
+.fact-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted)}
+.fact-value{font-size:14px;font-weight:600;color:var(--text);margin-top:2px;word-break:break-word}
+@media(max-width:520px){.fact-grid{grid-template-columns:1fr}}
+.profile-groups{display:flex;flex-direction:column;gap:16px}
+.profile-group{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);box-shadow:0 4px 14px rgba(var(--shadow-rgb),0.06);overflow:hidden}
+.pg-head{padding:16px 22px;display:flex;align-items:center;gap:10px;font-weight:700;color:var(--text);cursor:pointer;user-select:none}
+.pg-head i.pg-icon{color:var(--primary);font-size:18px}
+.pg-head .pg-chev{margin-left:auto;color:var(--primary);font-size:20px;font-weight:700;transition:transform 260ms ease}
+.profile-group.open .pg-chev{transform:rotate(180deg)}
+.pg-head .pg-chev{color:var(--primary);font-size:20px;font-weight:700}
+.pg-body{max-height:0;overflow:hidden;transition:max-height 320ms cubic-bezier(0.34,1.1,0.64,1);padding:0 22px}
+.profile-group.open .pg-body{max-height:1200px;padding-bottom:20px}
+@media(max-width:768px){
+  .pg-head{padding:14px 18px}
+}
+.profile-save-bar{position:sticky;bottom:0;background:var(--panel-bg);border-top:1px solid var(--card-border-solid);padding:14px 20px;display:none;justify-content:flex-end;margin:16px -16px -16px;border-radius:0 0 var(--radius-card) var(--radius-card)}
+@media(max-width:768px){
+  .profile-save-bar{display:flex;position:fixed;left:0;right:0;bottom:0;margin:0;z-index:80;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));box-shadow:0 -8px 24px rgba(var(--shadow-rgb),0.12)}
+  .desktop-save-actions{display:none}
+}
+
+/* FAB */
+.fab{position:fixed;right:20px;bottom:calc(20px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;background:var(--brand-grad);color:#fff;border:none;display:none;align-items:center;justify-content:center;font-size:26px;cursor:pointer;box-shadow:0 10px 28px rgba(var(--shadow-rgb),0.45);z-index:85;transition:transform 200ms ease}
+.fab:hover{transform:scale(1.05)}
+.fab.show{display:flex;animation:popIn 300ms cubic-bezier(0.34,1.5,0.64,1)}
+
+.wiz-empty{padding:20px;text-align:center;color:var(--text-muted);font-size:13px}
+
+@media (max-width: 768px){
+  .topnav-strip-wrapper{display:none}
+  .hamburger{display:flex}
+  .form-grid{grid-template-columns:1fr}
+  .topbar-shell{margin:8px 10px 0;padding-inline:0;max-width:none}
+  .main{padding:clamp(16px,4vw,32px);padding-top:var(--main-top-offset,90px);padding-bottom:100px}
+  .page-title{font-size:20px}
+  .brand-name{font-size:13px}
+  .desktop-book-btn{display:none}
+}
+@media (min-width: 769px){
+  .fab{display:none !important}
+}
+@media (max-width: 480px){
+  .top-right .logout-btn span{display:none}
+}
+
+/* Refresh overlay shimmer */
+.refresh-host{position:relative}
+.refresh-host.refreshing::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,0.2),rgba(255,255,255,0.55),rgba(255,255,255,0.2));background-size:200% 100%;animation:refreshShimmer 1.4s linear infinite;pointer-events:none;z-index:5;border-radius:inherit}
+.refresh-host.refreshing > *{opacity:.55;transition:opacity 200ms ease;pointer-events:none}
+@keyframes refreshShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+.ac-sk{border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);background:var(--panel-bg);padding:14px;margin-bottom:10px;display:flex;gap:12px;align-items:center}
+.ac-sk .sk-circle{width:38px;height:38px;border-radius:50%}
+.ac-sk .sk-meta{flex:1}
+
+/* Accordion cards (approvals list) — same collapsible language as .profile-group */
+.ac-list{display:flex;flex-direction:column;gap:12px}
+.ac-card{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);box-shadow:0 4px 14px rgba(var(--shadow-rgb),0.06);overflow:hidden;transition:border-color 220ms ease,box-shadow 220ms ease}
+.ac-card.open{border-color:rgba(var(--shadow-rgb),0.35);box-shadow:0 10px 26px rgba(var(--shadow-rgb),0.14)}
+.ac-head{padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none}
+.ac-avatar{width:38px;height:38px;border-radius:50%;background:var(--brand-grad);color:#fff;display:flex;align-items:center;justify-content:center;font:800 13px 'Inter',sans-serif;flex-shrink:0;box-shadow:0 4px 12px rgba(var(--shadow-rgb),0.28)}
+.ac-head-meta{min-width:0;flex:1}
+.ac-head-title{font:700 14px 'Inter',sans-serif;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ac-head-sub{font-size:12px;color:var(--text-muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ac-chev{color:var(--primary);font-size:20px;transition:transform 260ms ease;flex-shrink:0}
+.ac-card.open .ac-chev{transform:rotate(180deg)}
+.ac-body{max-height:0;overflow:hidden;transition:max-height 320ms cubic-bezier(0.34,1.1,0.64,1);padding:0 18px}
+.ac-card.open .ac-body{max-height:900px;padding-bottom:18px}
+.ac-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;padding-top:6px}
+.inline-warn{display:flex;align-items:center;gap:8px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.28);color:#7C4A03;border-radius:10px;padding:10px 12px;font:600 12.5px 'Inter',sans-serif;margin-bottom:4px}
+.inline-warn i{font-size:16px;color:var(--warning);flex-shrink:0}
+
+/* Bottom sheet modal system (mobile only) — confirmations opt out via .no-sheet */
+@keyframes slideUp{from{transform:translateY(100%);opacity:.5}to{transform:translateY(0);opacity:1}}
+.sheet-handle{display:none;width:44px;height:5px;border-radius:999px;background:var(--card-border-solid);margin:-8px auto 12px}
+.sheet-head-sticky{position:sticky;top:calc(-20px - env(safe-area-inset-top,0px));background:var(--panel-bg);z-index:26;margin:-20px -18px 12px;padding:14px 18px 10px}
+@media(max-width:768px){
+  .modal-backdrop{padding:0;align-items:flex-end}
+  .modal-card:not(.no-sheet),
+  .modal-card.wide:not(.no-sheet),
+  .modal-card.sheet:not(.no-sheet){position:fixed;left:0;right:0;bottom:0;top:auto;width:100%;max-width:none;border-radius:24px 24px 0 0;max-height:85vh;max-height:85dvh;overflow-y:auto;overflow-x:hidden;animation:slideUp 320ms cubic-bezier(0.22,1,0.36,1);padding:20px 18px calc(16px + env(safe-area-inset-bottom,0px));border-bottom:none}
+  .modal-card:not(.no-sheet) .sheet-handle{display:block}
+  .modal-card:not(.no-sheet) .modal-actions{position:sticky;bottom:calc(-16px - env(safe-area-inset-bottom,0px));background:var(--panel-bg);margin-top:14px;padding:12px 0 calc(10px + env(safe-area-inset-bottom,0px));z-index:26;border-top:1px solid var(--card-border-solid)}
+  .modal-card:not(.no-sheet) .modal-actions .btn-primary{flex:1;justify-content:center}
+  /* Confirmation dialogs must stay small centered popups on mobile too. */
+  .modal-card.no-sheet{position:fixed;left:50%;right:auto;top:50%;bottom:auto;transform:translate(-50%,-50%);width:calc(100% - 32px);max-width:440px;border-radius:var(--radius-card);max-height:90vh;max-height:90dvh;animation:popInCentered 280ms cubic-bezier(0.34,1.5,0.64,1);padding:24px}
+  .modal-card.no-sheet .sheet-handle{display:none}
+}
+@media(min-width:769px){
+  .sheet-head-sticky{position:static;background:none;margin:0;padding:0}
+}
+
+/* Button loading — mute button, three dots pulse in a traveling wave */
+.btn.loading{
+  background: var(--text-muted) !important;
+  border-color: var(--text-muted) !important;
+  color: var(--panel-bg) !important;
+  opacity: .6;
+  pointer-events: none;
+}
+.btn.loading .btn-icon,
+.btn.loading .btn-text{
+  display: none;
+}
+.btn-dots{
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.btn.loading .btn-dots{
+  display: inline-flex;
+}
+.btn-dots span{
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: dotPulse 1.2s ease-in-out infinite;
+}
+.btn-dots span:nth-child(1){ animation-delay: 0s; }
+.btn-dots span:nth-child(2){ animation-delay: .15s; }
+.btn-dots span:nth-child(3){ animation-delay: .3s; }
+@keyframes dotPulse{
+  0%, 80%, 100% { transform: scale(1);   opacity: .6; }
+  40%           { transform: scale(1.6); opacity: 1;  }
+}
+</style>
+</head>
+<body>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="med-bg" id="medBg"></div>
+
+<div id="authScreen">
+  <div class="auth-logo-pulse" style="width:64px;height:64px;border-radius:14px;background:var(--brand-grad);display:flex;align-items:center;justify-content:center;color:#fff;font-size:32px;box-shadow:0 6px 20px rgba(var(--shadow-rgb),0.35);overflow:hidden"><img src="assets/jsp-logo.png" alt="Jigawa State Polytechnic Logo" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+  <div>Verifying session…</div>
+</div>
+
+<div id="app" style="display:none">
+  <div class="layout">
+    <div class="topbar-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-icon"><img src="assets/jsp-logo.png" alt="Jigawa State Polytechnic Logo" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+          <div>
+            <div class="brand-name">Jigawa State Polytechnic</div>
+            <div class="brand-kicker">SIWES Admin</div>
+          </div>
+        </div>
+        <div class="top-right">
+          <button class="icon-btn hamburger" id="menuBtn" aria-label="Open menu"><i class="ph ph-list"></i></button>
+          <button class="logout-btn desktop-logout-btn" id="logoutBtn"><i class="ph-bold ph-sign-out"></i><span>Log out</span></button>
+        </div>
+      </header>
+    </div>
+
+    <div class="topnav-strip-wrapper" id="desktopNavWrapper">
+      <div class="topnav-strip-outer">
+        <nav class="topnav-strip" id="topnav"></nav>
+      </div>
+    </div>
+
+    <aside class="island-nav" id="islandNav" aria-label="Primary navigation">
+      <div class="island-profile" id="islandProfile" tabindex="0">
+        <div class="island-avatar" id="islandAvatar"><i class="ph-bold ph-shield-check"></i></div>
+        <div class="island-profile-meta island-label">
+          <div class="island-profile-name" id="islandName">—</div>
+          <span class="island-profile-badge">SIWES Admin</span>
+        </div>
+      </div>
+      <div class="island-divider"></div>
+      <nav class="island-nav-list" id="islandNavList"></nav>
+      <div class="island-divider"></div>
+      <div class="island-footer" id="islandFooter" tabindex="0">
+        <div class="island-footer-glyph">G14</div>
+        <div class="island-footer-lines island-label">
+          <div>SIWES Unit</div>
+          <div>Academic Affairs</div>
+          <div>Jigawa State Polytechnic</div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="drawer-backdrop" id="drawerBackdrop"></div>
+    <aside class="drawer" id="drawer">
+      <div class="drawer-head">
+        <div class="brand">
+          <div class="brand-icon"><img src="assets/jsp-logo.png" alt="Jigawa State Polytechnic Logo" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+          <div><span class="drawer-title">Navigation</span></div>
+        </div>
+        <button class="icon-btn" id="drawerClose" aria-label="Close menu"><i class="ph ph-x"></i></button>
+      </div>
+      <nav class="drawer-nav" id="drawerNav"></nav>
+      <div class="drawer-foot">
+        <button class="logout-btn" style="width:100%;justify-content:center" id="logoutBtnDrawer"><i class="ph-bold ph-sign-out"></i> Log out</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- DASHBOARD -->
+      <!-- OVERVIEW -->
+      <section class="page active" id="page-overview">
+        <div class="page-header-row">
+          <div>
+            <div class="page-title">Overview</div>
+            <div class="page-title-sub" id="welcomeMsg">Welcome…</div>
+          </div>
+          <div class="page-header-actions">
+            <button class="icon-btn" id="refreshOverviewBtn" aria-label="Refresh"><i class="ph ph-arrows-clockwise"></i></button>
+          </div>
+        </div>
+        <div class="stat-grid" id="statGrid"></div>
+      </section>
+
+      <!-- APPROVALS -->
+      <section class="page" id="page-approvals">
+        <div class="page-header-row">
+          <div><div class="page-title">Approvals</div><div class="page-title-sub"><span id="welcomeMsg-approvals">Welcome…</span><span id="approvalsCount"></span></div></div>
+          <div class="page-header-actions">
+            <button class="icon-btn" id="refreshApprovalsBtn" aria-label="Refresh"><i class="ph ph-arrows-clockwise"></i></button>
+          </div>
+        </div>
+        <div class="segmented-wrap" style="margin-bottom:18px">
+          <div class="segmented" id="approvalsFilter">
+            <button class="segmented-btn active" data-status="pending">Pending</button>
+            <button class="segmented-btn" data-status="approved">Approved</button>
+            <button class="segmented-btn" data-status="rejected">Rejected</button>
+            <button class="segmented-btn" data-status="all">All</button>
+          </div>
+        </div>
+        <div id="approvalsList"></div>
+      </section>
+
+      <!-- ORGANIZATIONS -->
+      <section class="page" id="page-organizations">
+        <div class="page-header-row">
+          <div><div class="page-title">Organizations</div><div class="page-title-sub" id="welcomeMsg-organizations">Welcome…</div></div>
+          <div class="page-header-actions">
+            <button class="btn-primary" id="openAddOrganizationBtn"><i class="ph-bold ph-plus"></i> Add Organization</button>
+            <button class="icon-btn" id="refreshOrganizationsBtn" aria-label="Refresh"><i class="ph ph-arrows-clockwise"></i></button>
+          </div>
+        </div>
+        <div class="state-box"><i class="ph ph-hourglass"></i>Coming in a later stage.</div>
+      </section>
+
+      <!-- SUPERVISORS -->
+      <section class="page" id="page-supervisors">
+        <div class="page-header-row">
+          <div><div class="page-title">Supervisors</div><div class="page-title-sub" id="welcomeMsg-supervisors">Welcome…</div></div>
+          <div class="page-header-actions">
+            <button class="btn-primary" id="openAddSupervisorBtn"><i class="ph-bold ph-plus"></i> Add Supervisor</button>
+            <button class="icon-btn" id="refreshSupervisorsBtn" aria-label="Refresh"><i class="ph ph-arrows-clockwise"></i></button>
+          </div>
+        </div>
+        <div class="state-box"><i class="ph ph-hourglass"></i>Coming in a later stage.</div>
+      </section>
+
+      <!-- STUDENTS -->
+      <section class="page" id="page-students">
+        <div class="page-header-row">
+          <div><div class="page-title">Students</div><div class="page-title-sub" id="welcomeMsg-students">Welcome…</div></div>
+          <div class="page-header-actions">
+            <button class="icon-btn" id="refreshStudentsBtn" aria-label="Refresh"><i class="ph ph-arrows-clockwise"></i></button>
+          </div>
+        </div>
+        <div class="state-box"><i class="ph ph-hourglass"></i>Coming in a later stage.</div>
+      </section>
+
+      <!-- ANNOUNCEMENTS -->
+      <section class="page" id="page-announcements">
+        <div class="page-header-row">
+          <div><div class="page-title">Announcements</div><div class="page-title-sub" id="welcomeMsg-announcements">Welcome…</div></div>
+          <div class="page-header-actions">
+            <button class="btn-primary" id="openAddAnnouncementBtn"><i class="ph-bold ph-plus"></i> New Announcement</button>
+            <button class="icon-btn" id="refreshAnnouncementsBtn" aria-label="Refresh"><i class="ph ph-arrows-clockwise"></i></button>
+          </div>
+        </div>
+        <div class="state-box"><i class="ph ph-hourglass"></i>Coming in a later stage.</div>
+      </section>
+
+      <!-- VISITS -->
+      <section class="page" id="page-visits">
+        <div class="page-header-row">
+          <div><div class="page-title">Visits</div><div class="page-title-sub" id="welcomeMsg-visits">Welcome…</div></div>
+          <div class="page-header-actions">
+            <button class="icon-btn" id="refreshVisitsBtn" aria-label="Refresh"><i class="ph ph-arrows-clockwise"></i></button>
+          </div>
+        </div>
+        <div class="state-box"><i class="ph ph-hourglass"></i>Coming in a later stage.</div>
+      </section>
+
+      <!-- REPORTS -->
+      <section class="page" id="page-reports">
+        <div class="page-header-row">
+          <div><div class="page-title">Reports</div><div class="page-title-sub" id="welcomeMsg-reports">Welcome…</div></div>
+          <div class="page-header-actions">
+            <button class="icon-btn" id="refreshReportsBtn" aria-label="Refresh"><i class="ph ph-arrows-clockwise"></i></button>
+          </div>
+        </div>
+        <div class="state-box"><i class="ph ph-hourglass"></i>Coming in a later stage.</div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+
+const SUPABASE_URL = 'https://aphopvugdnnmjyhgohsr.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwaG9wdnVnZG5ubWp5aGdvaHNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4NzM2MTUsImV4cCI6MjEwMzQ0OTYxNX0.3n8LCodIbnuPNefVQbSpw2tBAVkEL4a2y0SYsNa5BKQ'
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+let currentUser = null, currentAdminId = null
+
+const NAV_ITEMS = [
+  { tab:'overview',      label:'Overview',      icon:'ph-house' },
+  { tab:'approvals',     label:'Approvals',     icon:'ph-check-circle' },
+  { tab:'organizations', label:'Organizations', icon:'ph-buildings' },
+  { tab:'supervisors',   label:'Supervisors',   icon:'ph-chalkboard-teacher' },
+  { tab:'students',      label:'Students',      icon:'ph-users-three' },
+  { tab:'announcements', label:'Announcements', icon:'ph-megaphone' },
+  { tab:'visits',        label:'Visits',        icon:'ph-map-pin-line' },
+  { tab:'reports',       label:'Reports',       icon:'ph-chart-bar' },
+]
+
+/* Med-bg */
+function initMedBg(){
+  const bg=document.getElementById('medBg'); if(!bg||bg.dataset.done) return
+  const icons=['ph-pill','ph-first-aid-kit','ph-heartbeat','ph-syringe','ph-stethoscope','ph-thermometer','ph-drop','ph-cross']
+  const n=18
+  for(let i=0;i<n;i++){
+    const el=document.createElement('i'); el.className='ph '+icons[i%icons.length]
+    el.style.left=(Math.random()*100)+'%'; el.style.fontSize=(18+Math.random()*18)+'px'
+    el.style.animationDuration=(14+Math.random()*20)+'s'; el.style.animationDelay=(-Math.random()*20)+'s'
+    bg.appendChild(el)
+  }
+  bg.dataset.done='1'
+}
+
+function renderNav(){
+  const top = document.getElementById('topnav')
+  const drw = document.getElementById('drawerNav')
+  const html = NAV_ITEMS.map((n,i) => `<button class="nav-item ${i===0?'active':''}" data-tab="${n.tab}" aria-label="${n.label}"><i class="ph ${n.icon}"></i> ${n.label}</button>`).join('')
+  top.innerHTML = html; drw.innerHTML = html
+  document.querySelectorAll('.nav-item').forEach(el => el.addEventListener('click', () => switchTab(el.dataset.tab)))
+
+  const island = document.getElementById('islandNavList')
+  if (island){
+    island.innerHTML = NAV_ITEMS.map((n,i) => `<button type="button" class="island-nav-item ${i===0?'active':''}" data-tab="${n.tab}" aria-label="${n.label}"><i class="ph ${n.icon}"></i><span class="island-label">${n.label}</span></button>`).join('')
+    island.querySelectorAll('.island-nav-item').forEach(el => el.addEventListener('click', () => switchTab(el.dataset.tab)))
+    // Tooltip disabled — labels are always visible in the expanded sidebar now.
+  }
+}
+
+function wireIslandTooltips(island){
+  return
+  let tip = document.getElementById('islandTooltip')
+  if (!tip){
+    tip = document.createElement('div')
+    tip.id = 'islandTooltip'
+    document.body.appendChild(tip)
+  }
+  const show = (el) => {
+    const label = el.dataset.tooltip
+    if (!label) return
+    const r = el.getBoundingClientRect()
+    tip.textContent = label
+    tip.style.left = (r.right + 12) + 'px'
+    tip.style.top = (r.top + r.height / 2) + 'px'
+    tip.classList.add('show')
+  }
+  const hide = () => tip.classList.remove('show')
+  island.querySelectorAll('.island-nav-item[data-tooltip]').forEach(el => {
+    el.addEventListener('mouseenter', () => show(el))
+    el.addEventListener('mouseleave', hide)
+    el.addEventListener('focus', () => show(el))
+    el.addEventListener('blur', hide)
+    el.addEventListener('click', hide)
+  })
+}
+
+/* =============== ISLAND TOOLTIP (shared element, positioned via getBoundingClientRect) =============== */
+function wireIslandTooltip(el, text){
+  const tip = document.getElementById('islandTooltip')
+  if (!tip) return
+  const show = () => {
+    tip.textContent = text
+    const r = el.getBoundingClientRect()
+    tip.style.left = (r.right + 10) + 'px'
+    tip.style.top = (r.top + r.height/2) + 'px'
+    tip.classList.add('show')
+  }
+  const hide = () => tip.classList.remove('show')
+  el.addEventListener('mouseenter', show)
+  el.addEventListener('focus', show)
+  el.addEventListener('mouseleave', hide)
+  el.addEventListener('blur', hide)
+  el.addEventListener('click', hide)
+}
+
+/* Island profile — avatar initials, and tooltip on profile/footer since their text is hidden (icon-only rail) */
+function setupIslandProfile(fullName){
+  // Avatar is a fixed admin icon (not initials) and the name is always shown as "SIWES Admin".
+  const nameEl = document.getElementById('islandName')
+  if (nameEl) nameEl.textContent = 'SIWES Admin'
+  // Labels are shown inline in the expanded sidebar; no tooltip needed.
+}
+
+/* Fill every per-tab "Welcome, [name]" heading (overview's #welcomeMsg plus one per other tab) */
+function setWelcomeMessages(fullName){
+  const msg = fullName ? `Welcome, ${fullName}` : 'Welcome, SIWES Admin'
+  const ids = ['welcomeMsg','welcomeMsg-approvals','welcomeMsg-organizations','welcomeMsg-supervisors','welcomeMsg-students','welcomeMsg-announcements','welcomeMsg-visits','welcomeMsg-reports']
+  ids.forEach(id => { const el = document.getElementById(id); if (el) el.textContent = msg })
+}
+
+/* =============== HELPERS =============== */
+function escHtml(s){ if (s == null) return ''; return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])) }
+function emptyIcon(){ return '<i class="ph ph-minus" style="color:var(--text-muted);opacity:.4"></i>' }
+/* Store full text values off-DOM so we can show them in a modal via a small eye-icon button in table cells */
+const TEXT_PREVIEW_STORE = {}
+let __textPreviewSeq = 0
+function eyeIconCell(text, title='Details'){
+  if (!text) return emptyIcon()
+  const key = 'tp' + (__textPreviewSeq++)
+  TEXT_PREVIEW_STORE[key] = { text: String(text), title }
+  return `<button type="button" class="icon-btn eye-btn" data-text-preview="${key}" aria-label="View ${escHtml(title)}"><i class="ph-bold ph-eye"></i></button>`
+}
+function wireEyeIconCells(container){
+  container.querySelectorAll('[data-text-preview]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const entry = TEXT_PREVIEW_STORE[btn.dataset.textPreview]
+      if (!entry) return
+      showInfoModal(entry.title, `<div style="white-space:pre-wrap;line-height:1.6">${escHtml(entry.text)}</div>`)
+    })
+  })
+}
+function formatDate(d){ if(!d) return '—'; const dt=new Date(d); if(isNaN(dt)) return escHtml(d); return dt.toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}) }
+function formatDateTime(d){ if(!d) return '—'; const dt=new Date(d); if(isNaN(dt)) return escHtml(d); return dt.toLocaleString('en-US',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) }
+function formatCurrency(n){ const v = Number(n||0); return '₦' + v.toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2}) }
+function badge(status){ if(!status) return emptyIcon(); const s = String(status).toLowerCase(); return `<span class="badge ${escHtml(s)}">${escHtml(s.replace(/_/g,' '))}</span>` }
+function initials(name){ if(!name) return '?'; return name.trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase() }
+function computeAge(dob){
+  if (!dob) return null
+  const d = new Date(dob); if (isNaN(d)) return null
+  const now = new Date()
+  let age = now.getFullYear() - d.getFullYear()
+  const m = now.getMonth() - d.getMonth()
+  if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--
+  return age >= 0 ? age : null
+}
+function isNetworkError(err){
+  if (!err) return false
+  const m = (err.message || String(err)).toLowerCase()
+  return m.includes('failed to fetch') || m.includes('networkerror') || m.includes('load failed') || !navigator.onLine
+}
+function handleErr(err, fallback='Something went wrong'){
+  if (isNetworkError(err)){ showToast('error','Check your internet connection'); return }
+  showToast('error', err?.message || fallback)
+}
+
+function formatTime(t){ if(!t) return '—'; const s=String(t); const m=s.match(/^(\d{1,2}):(\d{2})/); if(!m) return escHtml(s); let h=parseInt(m[1],10); const ap=h>=12?'PM':'AM'; h=h%12||12; return `${h}:${m[2]} ${ap}` }
+
+/* ============ Button loading helper (traveling wave of 3 pulsing dots) ============
+   Buttons must follow: <button class="btn-* btn"><i class="btn-icon …"></i><span class="btn-text">…</span><span class="btn-dots"><span></span><span></span><span></span></span></button> */
+function setBtnLoading(btn, on){
+  if (!btn) return
+  if (on){
+    if (btn.dataset.loadingOrig === undefined) btn.dataset.loadingOrig = btn.innerHTML
+    btn.disabled = true
+    btn.classList.add('loading')
+  } else {
+    btn.disabled = false
+    btn.classList.remove('loading')
+    delete btn.dataset.loadingOrig
+  }
+}
+function setBtnLabel(btn, label){ const t = btn && btn.querySelector('.btn-text'); if (t) t.textContent = label }
+
+/* Skeleton for accordion card lists */
+function skCards(n=4){
+  let h=''
+  for(let i=0;i<n;i++) h+=`<div class="ac-sk"><div class="sk sk-circle"></div><div class="sk-meta"><span class="sk sk-line" style="width:45%"></span><span class="sk sk-line" style="width:65%"></span></div></div>`
+  return h
+}
+
+function buildPagination(pagEl, infoEl, currentPage, pageSize, totalCount, loadFn){
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
+  const from = totalCount === 0 ? 0 : (currentPage-1)*pageSize + 1
+  const to = Math.min(currentPage*pageSize, totalCount)
+  infoEl.textContent = totalCount === 0 ? 'No results' : `Showing ${from}–${to} of ${totalCount}`
+  let html = `<button class="page-pill" ${currentPage===1?'disabled':''} data-p="${currentPage-1}" aria-label="Previous page"><i class="ph ph-caret-left"></i></button>`
+  const maxShow = 5; let start = Math.max(1, currentPage - 2); let end = Math.min(totalPages, start + maxShow - 1); start = Math.max(1, end - maxShow + 1)
+  for (let i = start; i <= end; i++) html += `<button class="page-pill ${i===currentPage?'active':''}" data-p="${i}">${i}</button>`
+  html += `<button class="page-pill" ${currentPage===totalPages?'disabled':''} data-p="${currentPage+1}" aria-label="Next page"><i class="ph ph-caret-right"></i></button>`
+  pagEl.innerHTML = html
+  pagEl.querySelectorAll('.page-pill[data-p]').forEach(btn => btn.addEventListener('click', () => {
+    const p = parseInt(btn.dataset.p,10); if (!isNaN(p) && p >= 1 && p <= totalPages) loadFn(p)
+  }))
+}
+
+/* Skeleton builders */
+function skStatGrid(n=4){ let h=''; for(let i=0;i<n;i++) h+=`<div class="sk-stat"><div class="sk sk-circle"></div><div class="sk-meta"><span class="sk sk-line" style="width:60%"></span><span class="sk sk-line" style="width:40%;height:18px"></span></div></div>`; return h }
+function skTable(rows=5){
+  let h='<table><thead><tr><th></th><th></th><th></th><th></th></tr></thead><tbody>'
+  for(let i=0;i<rows;i++) h+=`<tr><td><span class="sk sk-line" style="width:70px"></span></td><td><span class="sk sk-line" style="width:120px"></span></td><td><span class="sk sk-line" style="width:80px"></span></td><td><span class="sk sk-line" style="width:60px"></span></td></tr>`
+  h+='</tbody></table>'; return h
+}
+function skRxList(n=3){ let h=''; for(let i=0;i<n;i++) h+=`<div class="sk-rx"><span class="sk sk-line" style="width:40%;height:14px"></span><span class="sk sk-line" style="width:60%"></span></div>`; return h }
+/* =============== TOAST =============== */
+function showToast(type, message){
+  const duration = type === 'error' ? 6000 : 4000
+  const wrap = document.getElementById('toastContainer')
+  const t = document.createElement('div')
+  t.className = `toast t-${type}`
+  const icons = { success:'ph-check', error:'ph-x', info:'ph-info', warning:'ph-warning' }
+  const ic = icons[type] || icons.info
+  t.innerHTML = `<div class="toast-icon"><i class="ph-bold ${ic}"></i></div><div class="toast-text">${escHtml(message)}</div><button class="toast-close" aria-label="Close"><i class="ph ph-x"></i></button>`
+  wrap.appendChild(t)
+  requestAnimationFrame(() => t.classList.add('show'))
+
+  const dismiss = () => { t.classList.add('hide'); setTimeout(() => t.remove(), 300) }
+  t.querySelector('.toast-close').addEventListener('click', dismiss)
+  let autoTimer = setTimeout(dismiss, duration)
+
+  // Drag/swipe-to-dismiss (mouse + touch): drag the toast up, left, or right past a distance
+  // threshold to close it early; downward drag doesn't count since the toast lives at the top.
+  const DISMISS_THRESHOLD = 80
+  let startX = 0, startY = 0, curX = 0, curY = 0, dragging = false
+
+  function onDragStart(x, y){
+    startX = x; startY = y; curX = 0; curY = 0
+    dragging = true
+    clearTimeout(autoTimer)
+    t.classList.add('is-dragging')
+    t.style.transition = 'none'
+  }
+  function onDragMove(x, y){
+    if (!dragging) return
+    curX = x - startX; curY = y - startY
+    const effY = Math.min(curY, 0)
+    const dist = Math.hypot(curX, effY)
+    const opacity = Math.max(0, 1 - dist / (DISMISS_THRESHOLD * 1.5))
+    t.style.transform = `translate(${curX}px, ${curY}px)`
+    t.style.opacity = opacity
+  }
+  function onDragEnd(){
+    if (!dragging) return
+    dragging = false
+    const effY = Math.min(curY, 0)
+    const dist = Math.hypot(curX, effY)
+    if (dist >= DISMISS_THRESHOLD){
+      const scale = 2.5
+      t.style.transition = 'transform 250ms ease, opacity 200ms ease'
+      t.style.transform = `translate(${curX*scale}px, ${curY*scale}px)`
+      t.style.opacity = '0'
+      setTimeout(() => t.remove(), 260)
+    } else {
+      t.style.transition = 'transform 320ms cubic-bezier(0.34,1.56,0.64,1), opacity 200ms ease'
+      t.style.transform = 'translate(0,0)'
+      t.style.opacity = '1'
+      t.classList.remove('is-dragging')
+      autoTimer = setTimeout(dismiss, 3000)
+    }
+  }
+  t.addEventListener('mousedown', e => {
+    if (e.target.closest('.toast-close')) return
+    onDragStart(e.clientX, e.clientY)
+    const onMove = ev => onDragMove(ev.clientX, ev.clientY)
+    const onUp = () => { onDragEnd(); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp) }
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup', onUp)
+  })
+  t.addEventListener('touchstart', e => {
+    if (e.target.closest('.toast-close')) return
+    const touch = e.touches[0]
+    onDragStart(touch.clientX, touch.clientY)
+  }, {passive:true})
+  t.addEventListener('touchmove', e => {
+    const touch = e.touches[0]
+    onDragMove(touch.clientX, touch.clientY)
+    e.preventDefault()
+  }, {passive:false})
+  t.addEventListener('touchend', onDragEnd)
+  t.addEventListener('touchcancel', onDragEnd)
+}
+
+/* =============== CONFIRM =============== */
+function showConfirm(title, message, confirmLabel='Confirm', extraClass=''){
+  return new Promise(resolve => {
+    const bd = document.createElement('div')
+    bd.className = 'modal-backdrop'
+    bd.innerHTML = `<div class="modal-card${extraClass ? ' ' + extraClass : ''}"><div class="modal-title">${escHtml(title)}</div><div class="modal-msg">${escHtml(message)}</div><div class="modal-actions"><button class="btn-secondary" data-act="cancel">Cancel</button><button class="btn-danger" data-act="ok" style="padding:10px 20px;font-size:13px">${escHtml(confirmLabel)}</button></div></div>`
+    document.body.appendChild(bd)
+    const close = v => { bd.remove(); resolve(v) }
+    bd.addEventListener('click', e => { if (e.target === bd) close(false) })
+    bd.querySelector('[data-act="cancel"]').addEventListener('click', () => close(false))
+    bd.querySelector('[data-act="ok"]').addEventListener('click', () => close(true))
+  })
+}
+function showInfoModal(title, htmlBody){
+  const bd = document.createElement('div')
+  bd.className = 'modal-backdrop'
+  bd.innerHTML = `<div class="modal-card sheet"><div class="sheet-head-sticky"><div class="sheet-handle"></div><div class="modal-title" style="margin-bottom:0">${escHtml(title)}</div></div><div class="modal-msg">${htmlBody}</div><div class="modal-actions"><button class="btn-primary" data-act="close">Close</button></div></div>`
+  document.body.appendChild(bd)
+  const close = () => bd.remove()
+  bd.addEventListener('click', e => { if (e.target === bd) close() })
+  bd.querySelector('[data-act="close"]').addEventListener('click', close)
+}
+
+/* =============== THEME =============== */
+
+
+/* =============== DRAWER =============== */
+function openDrawer(){ document.getElementById('drawer').classList.add('open'); document.getElementById('drawerBackdrop').classList.add('open'); document.body.style.overflow = 'hidden' }
+function closeDrawer(){ document.getElementById('drawer').classList.remove('open'); document.getElementById('drawerBackdrop').classList.remove('open'); document.body.style.overflow = '' }
+
+/* =============== CUSTOM SELECT =============== */
+const CS_STATE = {}
+document.addEventListener('click', e => { if (!e.target.closest('.custom-select-wrap')) document.querySelectorAll('.custom-select-wrap.open').forEach(w => w.classList.remove('open')) })
+function _csRender(id){
+  const wrap = document.getElementById(id); const st = CS_STATE[id]; if (!wrap || !st) return
+  const isFilter = wrap.classList.contains('cs-filter')
+  const caretIcon = isFilter ? 'ph-funnel-simple' : 'ph-caret-circle-down'
+  const sel = st.options.find(o => String(o.value) === String(st.value))
+  const labelText = sel ? sel.label : (st.placeholder || 'Select…'); const cls = sel ? '' : ' placeholder'
+  const opts = st.options.length ? st.options.map((o,idx) => `<div class="cs-option${String(o.value)===String(st.value)?' active':''}${o.disabled?' disabled':''}" data-v="${escHtml(o.value)}" data-idx="${idx}" role="option">${escHtml(o.label)}${String(o.value)===String(st.value)?'<i class="ph ph-check"></i>':''}</div>`).join('') : '<div class="cs-option disabled">No options</div>'
+  wrap.innerHTML = `<button type="button" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false" tabindex="0"><span class="cs-label${cls}">${escHtml(labelText)}</span><i class="ph ${caretIcon} cs-caret"></i></button><div class="custom-select-options" role="listbox">${opts}</div>`
+  const trig = wrap.querySelector('.custom-select-trigger')
+  const openIt = () => {
+    if (wrap.classList.contains('is-muted')){ showToast('info','Contact admin to change this.'); return }
+    document.querySelectorAll('.custom-select-wrap.open').forEach(w => { if (w.id !== id) w.classList.remove('open') })
+    wrap.classList.add('open'); trig.setAttribute('aria-expanded','true')
+    const cur = wrap.querySelector('.cs-option.active') || wrap.querySelector('.cs-option:not(.disabled)')
+    if (cur) cur.classList.add('focused')
+    // Dynamically cap dropdown height to whatever space is actually available (viewport, and the
+    // enclosing modal-card's own scroll area if inside a modal), so on small mobile screens the
+    // option list never overflows off-screen or behind the browser chrome — it scrolls internally instead.
+    requestAnimationFrame(() => {
+      const optionsEl = wrap.querySelector('.custom-select-options')
+      if (!optionsEl) return
+      const triggerRect = trig.getBoundingClientRect()
+      const modalCard = wrap.closest('.modal-card')
+      const boundaryBottom = modalCard ? modalCard.getBoundingClientRect().bottom : window.innerHeight
+      const margin = 16
+      const available = Math.max(120, Math.min(280, boundaryBottom - triggerRect.bottom - margin))
+      optionsEl.style.maxHeight = available + 'px'
+      // If inside a modal, make sure the open dropdown is scrolled into view within the modal's own scroll container.
+      if (modalCard){
+        const optRect = optionsEl.getBoundingClientRect()
+        const cardRect = modalCard.getBoundingClientRect()
+        if (optRect.bottom > cardRect.bottom) modalCard.scrollTop += (optRect.bottom - cardRect.bottom) + margin
+      }
+    })
+  }
+  const closeIt = () => { wrap.classList.remove('open'); trig.setAttribute('aria-expanded','false'); wrap.querySelectorAll('.cs-option.focused').forEach(o=>o.classList.remove('focused')) }
+  trig.addEventListener('click', e => { e.stopPropagation(); wrap.classList.contains('open') ? closeIt() : openIt() })
+  trig.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown'){ e.preventDefault(); openIt() }
+    if (e.key === 'Escape') closeIt()
+  })
+  wrap.querySelectorAll('.cs-option').forEach(opt => {
+    if (opt.classList.contains('disabled')) return
+    opt.addEventListener('click', e => { e.stopPropagation(); const v = opt.dataset.v; setCS(id, v); closeIt(); if (st.onChange) st.onChange(v); wrap.classList.remove('is-invalid') })
+    opt.addEventListener('mouseenter', () => { wrap.querySelectorAll('.cs-option.focused').forEach(o=>o.classList.remove('focused')); opt.classList.add('focused') })
+  })
+  wrap.addEventListener('keydown', e => {
+    if (!wrap.classList.contains('open')) return
+    const options = [...wrap.querySelectorAll('.cs-option:not(.disabled)')]
+    let cur = options.findIndex(o => o.classList.contains('focused'))
+    if (e.key === 'ArrowDown'){ e.preventDefault(); cur = (cur+1) % options.length; options.forEach(o=>o.classList.remove('focused')); options[cur].classList.add('focused'); options[cur].scrollIntoView({block:'nearest'}) }
+    else if (e.key === 'ArrowUp'){ e.preventDefault(); cur = (cur-1+options.length) % options.length; options.forEach(o=>o.classList.remove('focused')); options[cur].classList.add('focused'); options[cur].scrollIntoView({block:'nearest'}) }
+    else if (e.key === 'Enter'){ e.preventDefault(); if (options[cur]) options[cur].click() }
+    else if (e.key === 'Escape'){ e.preventDefault(); closeIt(); trig.focus() }
+  })
+}
+function initCS(id, options, opts={}){ const wrap = document.getElementById(id); if (!wrap) return; CS_STATE[id] = { options: options || [], value: opts.value !== undefined ? opts.value : (wrap.dataset.csDefault || ''), placeholder: opts.placeholder || wrap.dataset.csPlaceholder || 'Select…', onChange: opts.onChange || null }; _csRender(id) }
+function popCS(id, options){ if (!CS_STATE[id]) initCS(id, options); else { CS_STATE[id].options = options || []; if (!options.find(o => String(o.value) === String(CS_STATE[id].value))) CS_STATE[id].value = ''; _csRender(id) } }
+function getCS(id){ return CS_STATE[id]?.value || '' }
+function setCS(id, v){ if (!CS_STATE[id]) return; CS_STATE[id].value = v == null ? '' : String(v); _csRender(id) }
+
+/* Tab switcher */
+function switchTab(tabName){
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.tab === tabName))
+  document.querySelectorAll('.island-nav-item').forEach(el => el.classList.toggle('active', el.dataset.tab === tabName))
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-'+tabName))
+  closeDrawer()
+  window.scrollTo({ top:0, behavior:'smooth' })
+  try { localStorage.setItem('siwes-admin-tab', tabName) } catch(e){}
+}
+
+
+/* Spin animation for refresh buttons */
+const spinBtn = (btn) => { const ic = btn.querySelector('i'); if(!ic) return; ic.style.transition='transform 0.6s ease'; ic.style.transform='rotate(360deg)'; setTimeout(()=>{ ic.style.transition='none'; ic.style.transform='rotate(0deg)' },650) }
+
+/* Top offset — the island is a left sidebar (not stacked above content like the old
+   topnav-strip was), so on desktop the offset only needs to clear the topbar itself. */
+function updateMainTopOffset(){
+  const shell=document.querySelector('.topbar-shell')
+  const isDesktop = window.innerWidth > 768
+  const off = isDesktop
+    ? (shell ? shell.getBoundingClientRect().bottom+22 : 100)
+    : 90
+  document.documentElement.style.setProperty('--main-top-offset', off+'px')
+}
+window.addEventListener('resize', updateMainTopOffset)
+
+
+/* Refresh with overlay shimmer (keeps existing content visible) */
+async function refreshWithOverlay(containerId, loadFn, sectionLabel){
+  const host = document.getElementById(containerId)
+  if (!host){ return loadFn() }
+  const hasContent = host.children.length > 0 && !host.querySelector('.sk')
+  if (hasContent) host.classList.add('refresh-host','refreshing')
+  try {
+    await loadFn()
+    showToast('info', `${sectionLabel || 'Data'} refreshed.`)
+  } finally { host.classList.remove('refreshing') }
+}
+
+/* =============== OVERVIEW =============== */
+function statCard(icon, iconCls, label, value){
+  return `<div class="stat-card"><div class="stat-icon${iconCls ? ' ' + iconCls : ''}"><i class="ph-bold ${icon}"></i></div><div class="stat-meta"><span class="stat-label">${escHtml(label)}</span><span class="stat-value">${value}</span></div></div>`
+}
+
+async function loadOverview(){
+  const grid = document.getElementById('statGrid')
+  if (!grid) return
+  if (!grid.children.length) grid.innerHTML = skStatGrid(8)
+  try {
+    const [
+      { count: studentsCount, error: studentsErr },
+      { count: pendingCount, error: pendingErr },
+      { count: approvedCount, error: approvedErr },
+      { count: rejectedCount, error: rejectedErr },
+      { count: orgsCount, error: orgsErr },
+      { count: supervisorsCount, error: supervisorsErr },
+      { count: logbookCount, error: logbookErr },
+      { data: settingsRow, error: settingsErr },
+    ] = await Promise.all([
+      supabase.from('students').select('*', { count:'exact', head:true }),
+      supabase.from('placements').select('*', { count:'exact', head:true }).eq('status', 'pending'),
+      supabase.from('placements').select('*', { count:'exact', head:true }).eq('status', 'approved'),
+      supabase.from('placements').select('*', { count:'exact', head:true }).eq('status', 'rejected'),
+      supabase.from('organizations').select('*', { count:'exact', head:true }).eq('is_active', true),
+      supabase.from('profiles').select('*', { count:'exact', head:true }).eq('role', 'supervisor'),
+      supabase.from('logbook_entries').select('*', { count:'exact', head:true }),
+      supabase.from('settings').select('siwes_start_date, siwes_end_date, updated_at').order('updated_at', { ascending:false }).limit(1).maybeSingle(),
+    ])
+    const firstErr = studentsErr || pendingErr || approvedErr || rejectedErr || orgsErr || supervisorsErr || logbookErr || settingsErr
+    if (firstErr) throw firstErr
+
+    // Derive SIWES program status from the settings date range.
+    let programStatus = 'Not Set', programSub = 'No SIWES dates configured'
+    if (settingsRow){
+      const today = new Date(); today.setHours(0,0,0,0)
+      const start = new Date(settingsRow.siwes_start_date + 'T00:00:00')
+      const end = new Date(settingsRow.siwes_end_date + 'T00:00:00')
+      programSub = formatDate(settingsRow.siwes_start_date) + ' \u2013 ' + formatDate(settingsRow.siwes_end_date)
+      programStatus = today < start ? 'Not Started' : (today > end ? 'Ended' : 'Active')
+    }
+    const statusBadgeCls = programStatus === 'Active' ? 'active' : (programStatus === 'Ended' ? 'deactivated' : 'pending')
+    const statusCard = `<div class="stat-card"><div class="stat-icon blue"><i class="ph-bold ph-calendar-check"></i></div><div class="stat-meta"><span class="stat-label">SIWES Program</span><span class="stat-value small">${escHtml(programStatus)}<span class="badge ${statusBadgeCls}">${escHtml(programStatus)}</span></span><span class="stat-label" style="text-transform:none;letter-spacing:0">${escHtml(programSub)}</span></div></div>`
+
+    grid.innerHTML =
+      statusCard +
+      statCard('ph-users-three', '', 'Students Registered', studentsCount ?? 0) +
+      statCard('ph-hourglass', 'amber', 'Pending Placements', pendingCount ?? 0) +
+      statCard('ph-check-circle', '', 'Approved Placements', approvedCount ?? 0) +
+      statCard('ph-x-circle', 'amber', 'Rejected Placements', rejectedCount ?? 0) +
+      statCard('ph-buildings', '', 'Active Organizations', orgsCount ?? 0) +
+      statCard('ph-chalkboard-teacher', '', 'Active Supervisors', supervisorsCount ?? 0) +
+      statCard('ph-book-open', '', 'Logbook Entries', logbookCount ?? 0)
+  } catch (err) {
+    handleErr(err, 'Could not load overview')
+    if (!grid.querySelector('.stat-card')) grid.innerHTML = '<div class="state-box" style="grid-column:1/-1"><i class="ph ph-warning-circle"></i>Could not load overview data.</div>'
+  }
+}
+
+/* =============== APPROVALS =============== */
+/* Stage 3: the core admin workflow \u2014 review pending placements, approve (assigning a
+   supervisor + consuming an organization slot) or reject (with a mandatory note). */
+let approvalsStatus = 'pending'
+let supervisorOptionsCache = null
+
+function todayISO(){
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+}
+
+/* Collapsible card in the same visual language as .profile-group */
+function acCardHtml({ id, initialsText, title, subtitle, badgeHtml, bodyHtml }){
+  return `<div class="ac-card" data-ac="${escHtml(id)}">
+    <div class="ac-head" role="button" tabindex="0" aria-expanded="false">
+      <div class="ac-avatar">${escHtml(initialsText)}</div>
+      <div class="ac-head-meta">
+        <div class="ac-head-title">${escHtml(title)}</div>
+        <div class="ac-head-sub">${escHtml(subtitle)}</div>
+      </div>
+      ${badgeHtml || ''}
+      <i class="ph ph-caret-down ac-chev"></i>
+    </div>
+    <div class="ac-body">${bodyHtml}</div>
+  </div>`
+}
+
+/* Wires head click/keyboard toggling for every .ac-card inside a container */
+function renderAccordion(container, cardsHtml){
+  container.innerHTML = cardsHtml
+  container.querySelectorAll('.ac-card').forEach(card => {
+    const head = card.querySelector('.ac-head')
+    const toggle = () => {
+      const open = card.classList.toggle('open')
+      head.setAttribute('aria-expanded', open ? 'true' : 'false')
+    }
+    head.addEventListener('click', toggle)
+    head.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle() } })
+  })
+}
+
+function factCard(icon, label, value, full){
+  return `<div class="fact-card${full ? ' full' : ''}"><div class="fact-icon"><i class="ph ${icon}"></i></div><div class="fact-meta"><div class="fact-label">${escHtml(label)}</div><div class="fact-value">${escHtml(value || '\u2014')}</div></div></div>`
+}
+
+async function loadSupervisorOptions(){
+  if (supervisorOptionsCache) return supervisorOptionsCache
+  const { data, error } = await supabase.from('profiles').select('id, full_name').eq('role','supervisor').order('full_name')
+  if (error) throw error
+  supervisorOptionsCache = (data || []).map(s => ({ value: s.id, label: s.full_name || 'Unnamed supervisor' }))
+  return supervisorOptionsCache
+}
+
+async function loadApprovals(){
+  const list = document.getElementById('approvalsList')
+  const countEl = document.getElementById('approvalsCount')
+  if (!list) return
+  if (!list.querySelector('.ac-card')) list.innerHTML = skCards(4)
+  try {
+    let q = supabase
+      .from('placements')
+      .select('id, student_id, organization_id, status, approved_date, override_note, rejection_note, created_at, students(matric_number, department, level, profiles(full_name, email, phone)), organizations(id, name, slots_taken)')
+      .order('created_at', { ascending:false })
+    if (approvalsStatus !== 'all') q = q.eq('status', approvalsStatus)
+    const { data: placements, error } = await q
+    if (error) throw error
+    const rows = placements || []
+
+    // Which of these students have uploaded a placement letter?
+    let letterSet = new Set()
+    const studentIds = [...new Set(rows.map(r => r.student_id).filter(Boolean))]
+    if (studentIds.length){
+      const { data: docs, error: docsErr } = await supabase
+        .from('documents').select('student_id').eq('file_type','placement_letter').in('student_id', studentIds)
+      if (docsErr) throw docsErr
+      letterSet = new Set((docs || []).map(d => d.student_id))
+    }
+
+    const label = approvalsStatus === 'all' ? 'placement' : approvalsStatus + ' placement'
+    if (countEl) countEl.textContent = ` \u2022 ${rows.length} ${label}${rows.length === 1 ? '' : 's'}`
+
+    if (!rows.length){
+      list.innerHTML = `<div class="state-box"><i class="ph ph-tray"></i>No ${escHtml(label)}s found.</div>`
+      return
+    }
+
+    const cards = rows.map(p => {
+      const st = p.students || {}
+      const prof = st.profiles || {}
+      const org = p.organizations || {}
+      const name = prof.full_name || 'Unknown student'
+      const hasLetter = letterSet.has(p.student_id)
+      const warn = hasLetter ? '' : `<div class="inline-warn"><i class="ph-bold ph-warning"></i>No placement letter uploaded \u2014 you can still approve this placement.</div>`
+      const noteRow = p.status === 'rejected' && p.rejection_note
+        ? factCard('ph-note-pencil','Rejection Note', p.rejection_note, true)
+        : (p.override_note ? factCard('ph-note','Admin Note', p.override_note, true) : '')
+      const actions = p.status === 'pending'
+        ? `<div class="ac-actions">
+             <button class="btn-danger" data-reject="${escHtml(p.id)}"><i class="ph-bold ph-x-circle"></i> Reject</button>
+             <button class="btn-primary" data-approve="${escHtml(p.id)}"><i class="ph-bold ph-check-circle"></i> Approve</button>
+           </div>`
+        : ''
+      const body = `${warn}<div class="fact-grid">
+          ${factCard('ph-identification-card','Matric Number', st.matric_number)}
+          ${factCard('ph-graduation-cap','Department', st.department)}
+          ${factCard('ph-stack','Level', st.level)}
+          ${factCard('ph-phone','Phone', prof.phone)}
+          ${factCard('ph-envelope-simple','Email', prof.email, true)}
+          ${factCard('ph-buildings','Organization', org.name, true)}
+          ${factCard('ph-paperclip','Placement Letter', hasLetter ? 'Uploaded' : 'Not uploaded')}
+          ${factCard('ph-calendar-blank','Submitted', formatDate(p.created_at))}
+          ${p.approved_date ? factCard('ph-calendar-check','Approved On', formatDate(p.approved_date)) : ''}
+          ${noteRow}
+        </div>${actions}`
+      return acCardHtml({
+        id: p.id,
+        initialsText: initials(name),
+        title: name,
+        subtitle: org.name || 'No organization chosen',
+        badgeHtml: badge(p.status),
+        bodyHtml: body,
+      })
+    }).join('')
+
+    renderAccordion(list, `<div class="ac-list">${cards}</div>`)
+    list.querySelectorAll('[data-approve]').forEach(b => b.addEventListener('click', e => {
+      e.stopPropagation()
+      openApproveModal(rows.find(r => String(r.id) === b.dataset.approve))
+    }))
+    list.querySelectorAll('[data-reject]').forEach(b => b.addEventListener('click', e => {
+      e.stopPropagation()
+      openRejectModal(rows.find(r => String(r.id) === b.dataset.reject))
+    }))
+  } catch (err) {
+    handleErr(err, 'Could not load approvals')
+    if (!list.querySelector('.ac-card')) list.innerHTML = '<div class="state-box"><i class="ph ph-warning-circle"></i>Could not load placements.</div>'
+  }
+}
+
+/* ---- APPROVE ---- */
+function openApproveModal(placement){
+  if (!placement) return
+  const student = placement.students?.profiles?.full_name || 'this student'
+  const orgName = placement.organizations?.name || 'the chosen organization'
+  const bd = document.createElement('div')
+  bd.className = 'modal-backdrop'
+  bd.innerHTML = `<div class="modal-card">
+    <div class="sheet-handle"></div>
+    <div class="modal-title">Approve Placement</div>
+    <div class="modal-msg">Approving <strong>${escHtml(student)}</strong> at <strong>${escHtml(orgName)}</strong>. Assign a supervisor to complete the approval.</div>
+    <div class="form-field full" style="margin-bottom:16px">
+      <label class="form-label">Assign Supervisor <span style="color:var(--error)">*</span></label>
+      <div class="custom-select-wrap" id="approveSupervisorSelect" data-cs-placeholder="Select supervisor\u2026"></div>
+      <div class="field-error" id="approveSupervisorErr">Please select a supervisor.</div>
+    </div>
+    <div class="form-field full">
+      <label class="form-label">Note (optional)</label>
+      <textarea class="form-textarea" id="approveNote" maxlength="500" placeholder="Any note about this approval\u2026"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" data-act="cancel">Cancel</button>
+      <button class="btn-primary btn" data-act="ok"><span class="btn-text">Approve</span></button>
+    </div>
+  </div>`
+  document.body.appendChild(bd)
+  const close = () => bd.remove()
+  bd.addEventListener('click', e => { if (e.target === bd) close() })
+  bd.querySelector('[data-act="cancel"]').addEventListener('click', close)
+
+  initCS('approveSupervisorSelect', [], { placeholder:'Select supervisor\u2026' })
+  loadSupervisorOptions()
+    .then(opts => popCS('approveSupervisorSelect', opts))
+    .catch(err => handleErr(err, 'Could not load supervisors'))
+
+  bd.querySelector('[data-act="ok"]').addEventListener('click', async e => {
+    const supervisorId = getCS('approveSupervisorSelect')
+    const wrap = document.getElementById('approveSupervisorSelect')
+    const errEl = document.getElementById('approveSupervisorErr')
+    if (!supervisorId){
+      wrap.classList.add('is-invalid'); errEl.classList.add('show'); return
+    }
+    wrap.classList.remove('is-invalid'); errEl.classList.remove('show')
+    const note = document.getElementById('approveNote').value.trim()
+    const btn = e.currentTarget
+    setBtnLoading(btn, true)
+    try {
+      await approvePlacement(placement, supervisorId, note)
+      close()
+      showToast('success', 'Placement approved and supervisor assigned.')
+      loadApprovals()
+    } catch (err) {
+      setBtnLoading(btn, false)
+      handleErr(err, 'Could not approve placement')
+    }
+  })
+}
+
+async function approvePlacement(placement, supervisorId, note){
+  const today = todayISO()
+  const patch = { status:'approved', approved_date: today }
+  // Schema has no dedicated approval-note column; override_note is the closest fit.
+  if (note) patch.override_note = note
+  const { error: upErr } = await supabase.from('placements').update(patch).eq('id', placement.id)
+  if (upErr) throw upErr
+
+  const { error: asgErr } = await supabase.from('supervisor_assignments').insert({
+    student_id: placement.student_id,
+    supervisor_id: supervisorId,
+    start_date: today,
+  })
+  if (asgErr) throw asgErr
+
+  // Consume one slot at the chosen organization (read-then-write; no atomic RPC exists yet).
+  const org = placement.organizations
+  if (org && org.id != null){
+    const { error: slotErr } = await supabase
+      .from('organizations').update({ slots_taken: Number(org.slots_taken || 0) + 1 }).eq('id', org.id)
+    if (slotErr) throw slotErr
+  }
+
+  // TODO: EmailJS approval notification \u2014 implement in a later stage
+}
+
+/* ---- REJECT ---- */
+function openRejectModal(placement){
+  if (!placement) return
+  const student = placement.students?.profiles?.full_name || 'this student'
+  const bd = document.createElement('div')
+  bd.className = 'modal-backdrop'
+  bd.innerHTML = `<div class="modal-card">
+    <div class="sheet-handle"></div>
+    <div class="modal-title">Reject Placement</div>
+    <div class="modal-msg">Rejecting the placement for <strong>${escHtml(student)}</strong>. A reason is required and will be shown to the student.</div>
+    <div class="form-field full">
+      <label class="form-label">Reason for rejection <span style="color:var(--error)">*</span></label>
+      <textarea class="form-textarea" id="rejectNote" maxlength="500" placeholder="Explain why this placement is being rejected\u2026"></textarea>
+      <div class="field-error" id="rejectNoteErr">A rejection note is required.</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" data-act="cancel">Cancel</button>
+      <button class="btn-danger btn" data-act="ok" style="padding:10px 20px;font-size:13px"><span class="btn-text">Reject</span></button>
+    </div>
+  </div>`
+  document.body.appendChild(bd)
+  const close = () => bd.remove()
+  bd.addEventListener('click', e => { if (e.target === bd) close() })
+  bd.querySelector('[data-act="cancel"]').addEventListener('click', close)
+
+  const ta = bd.querySelector('#rejectNote')
+  ta.addEventListener('input', () => { ta.classList.remove('is-invalid'); bd.querySelector('#rejectNoteErr').classList.remove('show') })
+
+  bd.querySelector('[data-act="ok"]').addEventListener('click', async e => {
+    const note = ta.value.trim()
+    if (!note){
+      ta.classList.add('is-invalid'); bd.querySelector('#rejectNoteErr').classList.add('show'); ta.focus(); return
+    }
+    const btn = e.currentTarget
+    setBtnLoading(btn, true)
+    try {
+      const { error } = await supabase.from('placements').update({ status:'rejected', rejection_note: note }).eq('id', placement.id)
+      if (error) throw error
+      // TODO: EmailJS rejection notification \u2014 implement in a later stage
+      close()
+      showToast('success', 'Placement rejected.')
+      loadApprovals()
+    } catch (err) {
+      setBtnLoading(btn, false)
+      handleErr(err, 'Could not reject placement')
+    }
+  })
+}
+
+function wireApprovalsFilter(){
+  const seg = document.getElementById('approvalsFilter')
+  if (!seg) return
+  seg.querySelectorAll('.segmented-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.classList.contains('active')) return
+      seg.querySelectorAll('.segmented-btn').forEach(b => b.classList.remove('active'))
+      btn.classList.add('active')
+      approvalsStatus = btn.dataset.status
+      loadApprovals()
+    })
+  })
+}
+
+/* =============== INIT =============== */
+async function init(){
+  renderNav()
+  try {
+    const savedTab = localStorage.getItem('siwes-admin-tab')
+    if (savedTab && document.getElementById('page-'+savedTab)) switchTab(savedTab)
+  } catch(e){}
+  initMedBg()
+  document.getElementById('menuBtn').addEventListener('click', openDrawer)
+  document.getElementById('drawerClose').addEventListener('click', closeDrawer)
+  document.getElementById('drawerBackdrop').addEventListener('click', closeDrawer)
+  document.getElementById('logoutBtn').addEventListener('click', confirmLogout)
+  document.getElementById('logoutBtnDrawer').addEventListener('click', confirmLogout)
+
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session){ window.location.href='index.html'; return }
+  currentUser = session.user
+
+  // SIWES schema: role, full_name and must_change_password live on the profiles table.
+  // maybeSingle() so a missing profile row resolves to null instead of throwing.
+  const { data: profile, error: profileErr } = await supabase
+    .from('profiles').select('role, full_name, must_change_password').eq('id', currentUser.id).maybeSingle()
+  if (profileErr || !profile || profile.role !== 'admin'){
+    // Not an admin (or no profile row) — sign out so no partially-authed state lingers.
+    await supabase.auth.signOut()
+    window.location.href='index.html'
+    return
+  }
+  if (profile.must_change_password){
+    // The auth page (index.html) owns the must-change-password modal flow; keep the
+    // session intact and bounce back so it can prompt for a new password there.
+    window.location.href='index.html'
+    return
+  }
+
+  currentAdminId = currentUser.id
+  setWelcomeMessages(profile.full_name); setupIslandProfile(profile.full_name)
+
+  document.getElementById('authScreen').style.display='none'
+  document.getElementById('app').style.display='block'
+  updateMainTopOffset()
+
+  // Refresh buttons — chrome only, no data loading wired yet (later stage).
+  document.getElementById('refreshOverviewBtn').addEventListener('click', e => { spinBtn(e.currentTarget); refreshWithOverlay('statGrid', loadOverview, 'Overview') })
+
+  document.getElementById('refreshApprovalsBtn').addEventListener('click', e => { spinBtn(e.currentTarget); refreshWithOverlay('approvalsList', loadApprovals, 'Approvals') })
+  wireApprovalsFilter()
+
+  // Initial data load — Overview and Approvals are the data-wired tabs in this stage.
+  loadOverview()
+  loadApprovals()
+  document.getElementById('refreshOrganizationsBtn').addEventListener('click', e => spinBtn(e.currentTarget))
+  document.getElementById('refreshSupervisorsBtn').addEventListener('click', e => spinBtn(e.currentTarget))
+  document.getElementById('refreshStudentsBtn').addEventListener('click', e => spinBtn(e.currentTarget))
+  document.getElementById('refreshAnnouncementsBtn').addEventListener('click', e => spinBtn(e.currentTarget))
+  document.getElementById('refreshVisitsBtn').addEventListener('click', e => spinBtn(e.currentTarget))
+  document.getElementById('refreshReportsBtn').addEventListener('click', e => spinBtn(e.currentTarget))
+}
+
+async function confirmLogout(){
+  const ok = await showConfirm('Log Out', "Are you sure you want to log out? You'll need to sign in again to access the dashboard.", 'Log Out', 'no-sheet')
+  if (ok) doLogout()
+}
+async function doLogout(){ await supabase.auth.signOut(); window.location.href='index.html' }
+
+/* =============== HOVER + ARROW-KEY SCROLL =============== */
+/* When the mouse is over the side nav or the main content area, Up/Down arrow keys scroll that panel. */
+;(function setupHoverArrowScroll(){
+  const SCROLL_STEP = 80
+  let hoveredPanel = null // 'nav' | 'main' | null
+  const navScrollEl = () => document.getElementById('islandNavList')
+  const mainEl = () => document.querySelector('main.main')
+
+  const navHoverTarget = document.getElementById('islandNav')
+  const mainHoverTarget = document.querySelector('main.main')
+
+  if (navHoverTarget){
+    navHoverTarget.addEventListener('mouseenter', () => { hoveredPanel = 'nav' })
+    navHoverTarget.addEventListener('mouseleave', () => { if (hoveredPanel === 'nav') hoveredPanel = null })
+  }
+  if (mainHoverTarget){
+    mainHoverTarget.addEventListener('mouseenter', () => { hoveredPanel = 'main' })
+    mainHoverTarget.addEventListener('mouseleave', () => { if (hoveredPanel === 'main') hoveredPanel = null })
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return
+    if (!hoveredPanel) return
+    // Don't hijack arrow keys while typing in an input/textarea or using a custom select.
+    const tag = (document.activeElement && document.activeElement.tagName) || ''
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || (document.activeElement && document.activeElement.isContentEditable)) return
+
+    const delta = e.key === 'ArrowDown' ? SCROLL_STEP : -SCROLL_STEP
+    if (hoveredPanel === 'nav' && navScrollEl()){
+      navScrollEl().scrollBy({ top: delta, behavior: 'smooth' })
+      e.preventDefault()
+    } else if (hoveredPanel === 'main'){
+      window.scrollBy({ top: delta, behavior: 'smooth' })
+      e.preventDefault()
+    }
+  })
+})()
+
+/* =============== SEGMENTED FILTER: fade-hint on horizontal scroll =============== */
+/* Hides the right-edge fade once the row is scrolled to its end, so it doesn't
+   sit over the last tab forever. Re-checks on resize since it affects overflow. */
+;(function setupSegmentedScrollFade(){
+  function checkWrap(wrap){
+    const seg = wrap.querySelector('.segmented')
+    if (!seg) return
+    const atEnd = seg.scrollWidth - seg.scrollLeft - seg.clientWidth < 2
+    wrap.classList.toggle('at-end', atEnd || seg.scrollWidth <= seg.clientWidth)
+  }
+  function wireWrap(wrap){
+    const seg = wrap.querySelector('.segmented')
+    if (!seg || wrap.dataset.fadeWired === '1') return
+    wrap.dataset.fadeWired = '1'
+    checkWrap(wrap)
+    seg.addEventListener('scroll', () => checkWrap(wrap), { passive:true })
+  }
+  function scan(){ document.querySelectorAll('.segmented-wrap').forEach(wireWrap) }
+  scan()
+  window.addEventListener('resize', () => document.querySelectorAll('.segmented-wrap').forEach(checkWrap))
+  // Filter rows for pages loaded/rendered after initial paint still get wired.
+  var obs = new MutationObserver(() => scan())
+  obs.observe(document.body, { childList:true, subtree:true })
+})()
+
+init()
+</script>
+</body>
+</html>
