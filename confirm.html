@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+<title>Account Confirmed — Jigawa State Polytechnic SIWES Portal</title>
+<link rel="icon" type="image/png" href="assets/jsp-logo.png" />
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.2/src/index.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --primary:#1B8FCB;--primary-mid:#2CA1DE;
+  --bg:#F4F5F6;--panel-bg:#FFFFFF;
+  --text:#1E2528;--text-muted:#6B7378;
+  --card-border:rgba(30,37,40,0.14);
+  --success:#16A34A;--error:#EF4444;
+  --shadow-rgb:27,143,203;
+  --brand-grad:linear-gradient(135deg,#8A96A0 0%,#1B8FCB 100%);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+*:focus-visible{outline:2px solid var(--primary);outline-offset:2px;border-radius:6px}
+body{
+  font-family:'Poppins',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;line-height:1.55;
+  display:flex;align-items:center;justify-content:center;
+  padding:24px;position:relative;overflow:hidden;
+}
+.blob{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0}
+.blob.b1{width:420px;height:420px;background:rgba(27,143,203,0.10);top:-100px;left:-100px}
+.blob.b2{width:380px;height:380px;background:rgba(44,161,222,0.10);bottom:-100px;right:-80px}
+
+.card{
+  position:relative;z-index:1;
+  background:var(--panel-bg);border:1.5px solid var(--card-border);
+  border-radius:20px;padding:44px 36px;max-width:420px;width:100%;
+  text-align:center;box-shadow:0 20px 50px rgba(var(--shadow-rgb),0.16);
+}
+.state{display:none}
+.state.show{display:block;animation:fadeUp .5s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.icon-wrap{
+  width:76px;height:76px;border-radius:999px;margin:0 auto 22px;
+  display:flex;align-items:center;justify-content:center;font-size:38px;color:#fff;
+}
+.icon-wrap.ok{background:var(--brand-grad);box-shadow:0 10px 26px rgba(var(--shadow-rgb),0.35)}
+.icon-wrap.err{background:linear-gradient(135deg,#f87171,var(--error));box-shadow:0 10px 26px rgba(239,68,68,0.30)}
+.icon-wrap.wait{background:var(--brand-grad);box-shadow:0 10px 26px rgba(var(--shadow-rgb),0.35)}
+.icon-wrap.wait i{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+h1{font-size:1.45rem;font-weight:800;margin-bottom:10px;letter-spacing:-0.01em}
+p{color:var(--text-muted);font-size:0.95rem;margin-bottom:28px}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  border-radius:8px;font-weight:700;font-size:1rem;padding:14px 28px;
+  background:var(--brand-grad);color:#fff;width:100%;
+  box-shadow:0 8px 24px rgba(var(--shadow-rgb),0.35);
+  transition:transform .22s ease,box-shadow .22s ease;
+  text-decoration:none;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(var(--shadow-rgb),0.45)}
+.btn:active{transform:translateY(1px)}
+
+.brand-mini{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:28px}
+.brand-mini .b-ic{
+  width:34px;height:34px;border-radius:10px;background:var(--brand-grad);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;
+  box-shadow:0 6px 16px rgba(var(--shadow-rgb),0.30);
+}
+.brand-mini .b-name{font-weight:700;font-size:0.9rem;color:var(--text-muted)}
+
+@media(prefers-reduced-motion:reduce){
+  .state.show{animation:none}
+  .icon-wrap.wait i{animation:none}
+}
+</style>
+</head>
+<body>
+
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+
+<div class="card">
+  <div class="brand-mini">
+    <div class="b-ic"><i class="ph-fill ph-graduation-cap"></i></div>
+    <div class="b-name">Jigawa State Polytechnic · SIWES Portal</div>
+  </div>
+
+  <div class="state" id="stateWaiting">
+    <div class="icon-wrap wait"><i class="ph ph-spinner"></i></div>
+    <h1>Confirming your account…</h1>
+    <p>Just a moment while we verify your email.</p>
+  </div>
+
+  <div class="state" id="stateSuccess">
+    <div class="icon-wrap ok"><i class="ph-fill ph-check-circle"></i></div>
+    <h1>Account confirmed!</h1>
+    <p>Your email is verified and your account is ready. You can now log in and start using the SIWES portal.</p>
+    <a class="btn" href="index.html"><i class="ph ph-sign-in"></i> Log In</a>
+  </div>
+
+  <div class="state" id="stateError">
+    <div class="icon-wrap err"><i class="ph-fill ph-x-circle"></i></div>
+    <h1>Confirmation failed</h1>
+    <p id="errorMsg">This confirmation link is invalid or has expired. Please try signing up again, or contact the admin for help.</p>
+    <a class="btn" href="index.html"><i class="ph ph-arrow-left"></i> Back to Sign In</a>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://aphopvugdnnmjyhgohsr.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwaG9wdnVnZG5ubWp5aGdvaHNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4NzM2MTUsImV4cCI6MjEwMzQ0OTYxNX0.3n8LCodIbnuPNefVQbSpw2tBAVkEL4a2y0SYsNa5BKQ";
+const sb = (window.supabase && typeof window.supabase.createClient === "function")
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+function show(id){
+  document.querySelectorAll('.state').forEach(s=>s.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
+}
+
+(async function(){
+  show('stateWaiting');
+
+  if(!sb){
+    document.getElementById('errorMsg').textContent = "Service unavailable right now — please refresh and try again.";
+    show('stateError');
+    return;
+  }
+
+  try{
+    // Supabase's confirmation link redirects here with the session already
+    // established via URL hash tokens, which supabase-js parses automatically
+    // on client creation (detectSessionInUrl defaults to true).
+    const { data: { session } } = await sb.auth.getSession();
+
+    // Also check for an explicit error in the URL (expired/invalid link).
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    const err = hash.get('error') || new URLSearchParams(window.location.search).get('error');
+
+    if(err){
+      const desc = hash.get('error_description') || new URLSearchParams(window.location.search).get('error_description');
+      document.getElementById('errorMsg').textContent = desc
+        ? decodeURIComponent(desc.replace(/\+/g,' '))
+        : "This confirmation link is invalid or has expired. Please try signing up again, or contact the admin for help.";
+      show('stateError');
+      return;
+    }
+
+    if(session){
+      // Clean the sensitive tokens out of the URL bar.
+      history.replaceState(null, '', window.location.pathname);
+      show('stateSuccess');
+    }else{
+      document.getElementById('errorMsg').textContent = "This confirmation link is invalid or has expired. Please try signing up again, or contact the admin for help.";
+      show('stateError');
+    }
+  }catch(e){
+    document.getElementById('errorMsg').textContent = "Something went wrong confirming your account. Please try again.";
+    show('stateError');
+  }
+})();
+</script>
+</body>
+</html>
