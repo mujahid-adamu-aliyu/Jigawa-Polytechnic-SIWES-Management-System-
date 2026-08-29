@@ -1,0 +1,1952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Jigawa State Polytechnic — SIWES Student Dashboard</title>
+<link rel="icon" type="image/png" href="assets/jsp-logo.png" />
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.2/src/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --primary:#1B8FCB; --primary-mid:#2CA1DE; --primary-light:#4FB3E8;
+  --bg:#F4F5F6; --panel-bg:#FFFFFF; --neu-bg:#FFFFFF;
+  --neu-shadow-d:#d6dade; --neu-shadow-l:#ffffff;
+  --text:#1E2528; --text-muted:#6B7378;
+  --input-bg:#FFFFFF; --input-border:#D3D7DA; --input-bg-err:#FEF2F2;
+  --card-border:rgba(30,37,40,0.14); --card-border-solid:#D3D7DA;
+  --success:#16A34A; --error:#EF4444; --warning:#F59E0B; --info:#2563EB; --white:#FFFFFF;
+  --shadow-rgb:27,143,203;
+  --radius-card:12px; --radius-input:8px; --radius-btn:8px;
+  --overlay-grad:linear-gradient(150deg,#2CA1DE 0%,#1B8FCB 100%);
+  --brand-grad:linear-gradient(135deg,#8A96A0 0%,#1B8FCB 100%);
+  --content-max:1200px;
+  --med-icon:rgba(27,143,203,0.22);
+  --stat-amber:#F59E0B; --stat-blue:#2563EB;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-user-select:none;user-select:none}
+input,textarea,select,[contenteditable="true"]{-webkit-user-select:text;user-select:text}
+.drawer-title{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;}
+html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;transition:background 250ms ease,color 250ms ease}
+body{overflow-x:hidden;overscroll-behavior-y:none}
+.blob{position:fixed;border-radius:50%;filter:blur(90px);z-index:0;pointer-events:none}
+.blob1{width:500px;height:500px;background:rgba(27,143,203,0.12);top:-150px;left:-150px;animation:blobDrift1 22s ease-in-out infinite alternate}
+.blob2{width:420px;height:420px;background:rgba(var(--shadow-rgb),0.10);bottom:-120px;right:-120px;filter:blur(80px);animation:blobDrift2 18s ease-in-out infinite alternate}
+@keyframes blobDrift1{0%{transform:translate(0,0) scale(1)}100%{transform:translate(120px,80px) scale(1.15)}}
+@keyframes blobDrift2{0%{transform:translate(0,0) scale(1.1)}100%{transform:translate(-100px,-60px) scale(1)}}
+
+/* SIWES-themed snow background */
+.med-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.med-bg i{position:absolute;color:var(--med-icon);font-size:26px;top:-40px;animation:medFall linear infinite;opacity:.9}
+@keyframes medFall{
+  0%{transform:translateY(-40px) rotate(0deg);opacity:0}
+  10%{opacity:.9}
+  90%{opacity:.9}
+  100%{transform:translateY(105vh) rotate(360deg);opacity:0}
+}
+.receipt-med-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;border-radius:var(--radius-card);z-index:0}
+.receipt-med-bg i{position:absolute;color:var(--med-icon);font-size:22px;top:-30px;animation:medFall linear infinite;opacity:.8}
+@media print{
+  .med-bg,.receipt-med-bg,.blob{display:none !important}
+}
+/* Reports PDF export: window.print() + this print stylesheet is the chosen
+   zero-dependency approach (see loadReports/exportReportsPdf). When printing
+   is triggered from the Reports tab, .printing-report is added to <body> so
+   only #reportsRoot is visible — everything else (nav, drawer, other tab
+   sections, buttons) is hidden for a clean institutional-record printout. */
+body.printing-report{background:#fff !important}
+body.printing-report .topbar-shell,
+body.printing-report .topnav-strip-wrapper,
+body.printing-report .island-nav,
+body.printing-report .drawer,
+body.printing-report .drawer-backdrop,
+body.printing-report .page-header-actions{display:none !important}
+body.printing-report .layout{display:block !important}
+body.printing-report main.main{padding:0 !important;margin:0 !important;max-width:none !important;width:100% !important}
+body.printing-report .page{display:none !important}
+body.printing-report .page#page-reports{display:block !important}
+body.printing-report #reportsRoot{box-shadow:none !important;border:none !important}
+@media print{
+  body.printing-report .report-chart-wrap{page-break-inside:avoid}
+  body.printing-report .stat-card{page-break-inside:avoid}
+}
+
+#authScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100dvh;font-size:16px;color:var(--text-muted);gap:14px;position:relative;z-index:1;padding:20px;text-align:center}
+#authScreen .auth-logo-pulse{animation:authLogoPulse 0.85s cubic-bezier(0.45,0,0.55,1) infinite}
+#authScreen img{width:64px;height:64px;border-radius:14px;box-shadow:0 6px 20px rgba(var(--shadow-rgb),0.35)}
+@keyframes authLogoPulse{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{display:inline-block;animation:spin 0.8s linear infinite}
+
+.layout{position:relative;z-index:1}
+.topbar-shell{position:fixed;top:0;left:0;right:0;z-index:90;max-width:var(--content-max);margin:12px auto 0;padding-inline:clamp(64px,10vw,120px);pointer-events:none}
+@media(min-width:769px){
+  .topbar-shell{max-width:none;margin:14px 16px 0;padding-inline:0}
+}
+.topbar{position:relative;width:100%;padding:10px 20px;background:color-mix(in srgb, var(--panel-bg) 78%, transparent);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);box-shadow:0 10px 28px rgba(var(--shadow-rgb),0.12);display:flex;align-items:center;gap:14px;pointer-events:auto;transition:box-shadow 260ms ease}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-icon{width:42px;height:42px;border-radius:10px;background:var(--brand-grad);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(var(--shadow-rgb),0.35);border:2.5px solid #1B8FCB;color:#fff;font-size:22px;overflow:hidden;flex-shrink:0}
+.brand-icon img{width:100%;height:100%;object-fit:cover;display:block}
+.brand-name{font-weight:800;font-size:15px;color:var(--text);line-height:1.1;letter-spacing:.01em}
+.brand-kicker{font-weight:700;font-size:10px;color:var(--primary-mid);text-transform:uppercase;letter-spacing:0.12em;margin-top:2px}
+.top-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.icon-btn{width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:999px;border:1.5px solid var(--card-border-solid);background:var(--neu-bg);color:var(--text);cursor:pointer;font-size:18px;transition:all 220ms cubic-bezier(0.34,1.4,0.64,1)}
+.icon-btn:hover{transform:translateY(-2px) scale(1.08);box-shadow:0 4px 14px rgba(var(--shadow-rgb),0.18);border-color:var(--primary)}
+.icon-btn:active{transform:translateY(0) scale(0.95)}
+.icon-btn i{transition:transform 220ms cubic-bezier(0.34,1.56,0.64,1)}
+.icon-btn:hover i{transform:rotate(-8deg)}
+.logout-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:999px;background:rgba(239,68,68,0.10);color:var(--error);border:1px solid rgba(239,68,68,0.22);font:600 13px 'Inter';cursor:pointer;transition:all 180ms ease}
+.logout-btn:hover{background:rgba(239,68,68,0.18)}
+.desktop-logout-btn{display:inline-flex}
+@media(max-width:768px){.desktop-logout-btn{display:none}}
+.hamburger{display:none}
+
+.topnav-strip-wrapper{position:fixed;top:78px;z-index:89;left:0;right:0;max-width:var(--content-max);margin:14px auto 0;padding-inline:clamp(64px,10vw,120px);pointer-events:none}
+.topnav-strip-outer{padding:14px 16px;background:color-mix(in srgb, var(--panel-bg) 78%, transparent);backdrop-filter:blur(14px) saturate(160%);border:1.5px solid var(--card-border-solid);border-radius:24px;box-shadow:0 8px 24px rgba(var(--shadow-rgb),0.08);pointer-events:auto}
+.topnav-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.nav-item{display:flex;align-items:center;justify-content:center;gap:9px;padding:0 16px;min-height:44px;background:var(--neu-bg);border:1.5px solid var(--card-border-solid);border-radius:999px;color:var(--text-muted);font:700 13px 'Inter',sans-serif;opacity:.6;cursor:pointer;transition:all 200ms ease}
+.nav-item i{font-size:18px}
+.nav-item:hover{opacity:.9;transform:translateY(-1px)}
+.nav-item.active{color:#fff;border-color:transparent;background:var(--brand-grad);box-shadow:0 6px 20px rgba(var(--shadow-rgb),0.40);opacity:1}
+
+/* ===================== DESKTOP ISLAND SIDEBAR ===================== */
+/* Matches patient dashboard's .island component exactly (profile block with
+   name + role badge, nav with icon+label rows, footer with text lines),
+   adapted to admin's existing element ids (islandNav / islandNavList). */
+@media(min-width:769px){
+  .topnav-strip-wrapper{display:none !important}
+}
+:root{ --island-w-collapsed:68px; --island-w-expanded:250px; }
+.island-nav{
+  display:none;
+  position:fixed; top:var(--main-top-offset,90px); bottom:12px; left:16px; z-index:88;
+  width:var(--island-w-expanded);
+  background:color-mix(in srgb, var(--panel-bg) 86%, transparent);
+  backdrop-filter:blur(14px) saturate(160%); -webkit-backdrop-filter:blur(14px) saturate(160%);
+  border:1.5px solid var(--card-border-solid); border-radius:var(--radius-card);
+  box-shadow:0 10px 28px rgba(var(--shadow-rgb),0.14);
+  flex-direction:column; overflow:hidden;
+  transition:box-shadow 260ms ease;
+}
+@media(min-width:769px){ .island-nav{ display:flex } }
+.island-label{ display:inline-block; opacity:1; }
+
+.island-profile{ display:flex; align-items:center; gap:10px; padding:10px 14px 16px; flex-shrink:0; min-width:0; cursor:default; transition:transform 220ms ease }
+.island-profile:hover{ transform:translateX(2px) }
+.island-avatar{
+  width:38px; height:38px; border-radius:50%; background:var(--brand-grad); color:#fff;
+  display:flex; align-items:center; justify-content:center; font:800 14px 'Inter',sans-serif;
+  flex-shrink:0; box-shadow:0 4px 12px rgba(var(--shadow-rgb),0.30);
+  transition:transform 260ms cubic-bezier(0.34,1.56,0.64,1), box-shadow 260ms ease;
+}
+.island-avatar i{ font-size:18px; }
+.island-profile:hover .island-avatar{ transform:scale(1.08) rotate(-4deg); box-shadow:0 6px 18px rgba(var(--shadow-rgb),0.45) }
+.island-profile-meta{ min-width:0; overflow:hidden }
+.island-profile-name{ font:700 13.5px 'Inter',sans-serif; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.island-profile-badge{
+  display:inline-block; margin-top:3px; font:700 10px 'Inter',sans-serif; text-transform:uppercase; letter-spacing:.06em;
+  color:var(--primary); background:rgba(var(--shadow-rgb),0.10); border-radius:999px; padding:2px 8px; white-space:nowrap;
+  transition:background 220ms ease, letter-spacing 220ms ease;
+}
+.island-profile:hover .island-profile-badge{ background:rgba(var(--shadow-rgb),0.18); letter-spacing:.09em }
+
+.island-divider{ height:1px; background:var(--card-border-solid); margin:0 14px; flex-shrink:0; opacity:.7 }
+
+.island-nav-list{ flex:1; display:flex; flex-direction:column; gap:6px; padding:14px 10px; overflow-y:auto; overflow-x:hidden; min-height:0; scrollbar-width:none }
+.island-nav-list::-webkit-scrollbar{ display:none }
+.island-nav-item{
+  position:relative; display:flex; align-items:center; gap:12px; min-height:44px;
+  border-radius:14px; padding:0 13px; color:var(--text-muted); background:transparent; border:none;
+  cursor:pointer; font:700 13px 'Inter',sans-serif; transition:background 220ms ease, color 220ms ease, transform 220ms cubic-bezier(0.34,1.56,0.64,1), box-shadow 220ms ease;
+  text-align:left; width:100%; justify-content:flex-start;
+  opacity:0; transform:translateX(-10px); animation:islandItemIn 420ms ease forwards;
+}
+@keyframes islandItemIn{ to{ opacity:1; transform:translateX(0) } }
+.island-nav-item:nth-child(1){ animation-delay:40ms }
+.island-nav-item:nth-child(2){ animation-delay:80ms }
+.island-nav-item:nth-child(3){ animation-delay:120ms }
+.island-nav-item:nth-child(4){ animation-delay:160ms }
+.island-nav-item:nth-child(5){ animation-delay:200ms }
+.island-nav-item:nth-child(6){ animation-delay:240ms }
+.island-nav-item:nth-child(7){ animation-delay:280ms }
+.island-nav-item:nth-child(8){ animation-delay:320ms }
+.island-nav-item i{ font-size:19px; flex-shrink:0; width:22px; text-align:center; transition:transform 260ms cubic-bezier(0.34,1.56,0.64,1) }
+.island-nav-item:hover{ background:rgba(var(--shadow-rgb),0.08); color:var(--text); transform:translateX(4px) }
+.island-nav-item:hover i{ transform:scale(1.15) rotate(-6deg) }
+.island-nav-item:active{ transform:translateX(4px) scale(0.97) }
+.island-nav-item.active{ background:rgba(var(--shadow-rgb),0.12); color:var(--primary); box-shadow:0 2px 10px rgba(var(--shadow-rgb),0.10) }
+.island-nav-item.active::before{
+  content:''; position:absolute; left:-10px; top:8px; bottom:8px; width:4px; border-radius:0 4px 4px 0; background:var(--brand-grad);
+  transition:top 260ms cubic-bezier(0.34,1.56,0.64,1), bottom 260ms cubic-bezier(0.34,1.56,0.64,1);
+}
+.island-nav-item:focus-visible{ outline:2px solid var(--primary); outline-offset:2px }
+
+.island-footer{ flex-shrink:0; padding:14px; display:flex; align-items:center; gap:10px; min-width:0; cursor:default; transition:transform 220ms ease }
+.island-footer:hover{ transform:translateX(2px) }
+.island-footer-glyph{
+  width:30px; height:30px; border-radius:9px; background:rgba(var(--shadow-rgb),0.10); color:var(--primary);
+  display:flex; align-items:center; justify-content:center; font:800 11px 'Inter',sans-serif; flex-shrink:0;
+  transition:transform 260ms cubic-bezier(0.34,1.56,0.64,1);
+}
+.island-footer-glyph i{font-size:16px}
+.island-footer:hover .island-footer-glyph{ transform:scale(1.08) rotate(4deg) }
+.island-footer-lines{ min-width:0; overflow:hidden }
+.island-footer-lines div{ font-size:10.5px; line-height:1.5; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.island-footer-lines div:first-child{ font-weight:700; color:var(--text) }
+@media (prefers-reduced-motion:reduce){
+  .island-nav-item{ opacity:1; transform:none; animation:none }
+  .island-profile, .island-footer, .island-avatar, .island-footer-glyph, .island-profile-badge, .island-nav-item i{ transition:none }
+}
+
+.main{max-width:var(--content-max);margin:0 auto 60px;padding:clamp(24px,5vw,60px) clamp(64px,10vw,120px);padding-top:var(--main-top-offset,200px);position:relative;z-index:1}
+@media(min-width:769px){ .main{ max-width:none; padding-left:calc(16px + var(--island-w-expanded) + 24px); padding-right:32px } }
+.page{display:none}
+.page.active{display:block;animation:fadeUp 420ms cubic-bezier(0.22,1,0.36,1)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion:reduce){ .page.active{ animation:none } }
+
+.page-title{font-size:26px;font-weight:800;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.page-title::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--brand-grad)}
+.page-title-sub{font-size:13px;color:var(--text-muted);margin-bottom:20px;font-weight:500}
+.page-header-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.page-header-row .page-title{margin-bottom:0}
+.appt-header-row{align-items:center}
+#page-appointments .page-title{margin-bottom:14px}
+.page-header-actions{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap}
+.page-header-actions .custom-select-wrap{display:flex}
+.page-header-actions .custom-select-trigger{height:42px;padding-top:0;padding-bottom:0}
+.page-header-actions .btn-primary{height:42px;padding-top:0;padding-bottom:0}
+.page-header-actions .icon-btn{height:42px;width:42px;flex-shrink:0}
+
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-bottom:28px}
+.stat-card{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);padding:22px 24px;display:flex;align-items:center;gap:16px;box-shadow:0 4px 6px rgba(0,0,0,0.04),0 10px 24px rgba(var(--shadow-rgb),0.08);position:relative;overflow:hidden;transition:transform 260ms cubic-bezier(0.34,1.4,0.64,1),box-shadow 260ms ease,border-color 260ms ease}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--brand-grad);opacity:.35;transition:opacity 220ms ease}
+.stat-card:hover{transform:translateY(-5px) scale(1.015);box-shadow:0 8px 16px rgba(0,0,0,0.06),0 18px 38px rgba(var(--shadow-rgb),0.18);border-color:rgba(var(--shadow-rgb),0.35)}
+.stat-card:hover::before{opacity:1}
+.stat-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(27,143,203,0.15),rgba(44,161,222,0.10));border:1px solid rgba(var(--shadow-rgb),0.15);color:var(--primary);font-size:22px;flex-shrink:0;transition:transform 260ms cubic-bezier(0.34,1.56,0.64,1)}
+.stat-card:hover .stat-icon{transform:scale(1.1) rotate(-6deg)}
+.stat-icon.amber{background:linear-gradient(135deg,rgba(245,158,11,0.18),rgba(245,158,11,0.08));border-color:rgba(245,158,11,0.25);color:var(--stat-amber,#F59E0B)}
+.stat-icon.blue{background:linear-gradient(135deg,rgba(37,99,235,0.15),rgba(37,99,235,0.08));border-color:rgba(37,99,235,0.25);color:var(--stat-blue,#2563EB)}
+.stat-meta{display:flex;flex-direction:column;gap:4px;min-width:0}
+.stat-label{font-size:11px;text-transform:uppercase;letter-spacing:.07em;font-weight:600;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat-value{font-size:28px;font-weight:800;color:var(--text);line-height:1.1}
+.stat-value.small{font-size:18px;line-height:1.2}
+.stat-value .badge{margin-left:8px;vertical-align:middle;font-size:10px;padding:2px 8px}
+@media(max-width:480px){.stat-grid{grid-template-columns:1fr}}
+
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.section-title{font-size:15px;font-weight:700;color:var(--text)}
+
+.btn-primary{background:var(--brand-grad);color:#fff;border:none;border-radius:var(--radius-btn);padding:10px 20px;font:600 13px 'Inter';box-shadow:0 4px 14px rgba(var(--shadow-rgb),0.35);cursor:pointer;transition:all 220ms cubic-bezier(0.34,1.4,0.64,1);display:inline-flex;align-items:center;gap:6px}
+.btn-primary:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 6px 18px rgba(var(--shadow-rgb),0.45)}
+.btn-primary:active{transform:translateY(0) scale(0.98)}
+.btn-primary:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.btn-primary i{transition:transform 220ms cubic-bezier(0.34,1.56,0.64,1)}
+.btn-primary:hover i{transform:scale(1.15) rotate(-6deg)}
+.btn-secondary{background:var(--panel-bg);color:var(--text);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-btn);padding:10px 20px;font:600 13px 'Inter';cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all 220ms cubic-bezier(0.34,1.4,0.64,1)}
+.segmented{display:flex;background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:999px;padding:3px;gap:2px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;position:relative}
+.segmented::-webkit-scrollbar{display:none}
+.segmented-btn{border:none;background:transparent;color:var(--text-muted);font:600 12px 'Inter';padding:7px 16px;border-radius:999px;cursor:pointer;transition:all 180ms ease;flex-shrink:0;white-space:nowrap}
+.segmented-btn.active{background:var(--brand-grad);color:#fff}
+.segmented-wrap{position:relative}
+.segmented-wrap::after{content:'';position:absolute;top:0;right:0;bottom:0;width:28px;border-radius:0 999px 999px 0;background:linear-gradient(to right, transparent, var(--panel-bg) 70%);pointer-events:none;opacity:1;transition:opacity 160ms ease}
+.segmented-wrap.at-end::after{opacity:0}
+.btn-secondary:hover{background:color-mix(in srgb, var(--primary) 6%, var(--panel-bg));transform:translateY(-2px) scale(1.03);border-color:var(--primary)}
+.btn-secondary:active{transform:translateY(0) scale(0.98)}
+.btn-danger{background:rgba(239,68,68,0.10);color:var(--error);border:1px solid rgba(239,68,68,0.22);border-radius:var(--radius-btn);padding:8px 16px;font:600 12px 'Inter';cursor:pointer;transition:all 220ms cubic-bezier(0.34,1.4,0.64,1)}
+.btn-danger:hover{background:rgba(239,68,68,0.20);transform:translateY(-2px) scale(1.03)}
+.btn-danger:active{transform:translateY(0) scale(0.98)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.icon-btn.eye-btn{width:32px;height:32px;font-size:15px;color:var(--primary)}
+
+.table-wrap{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);overflow:hidden;box-shadow:0 4px 14px rgba(var(--shadow-rgb),0.06)}
+.table-scroll{overflow-x:auto;position:relative}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:rgba(var(--shadow-rgb),0.06);padding:12px 16px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:700;border-bottom:1.5px solid var(--card-border-solid);white-space:nowrap}
+td{padding:12px 16px;border-bottom:1px solid var(--card-border-solid);color:var(--text);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
+tr:last-child td{border-bottom:none}
+tbody tr:nth-child(odd) td{background:rgba(255,255,255,0.6)}
+tbody tr:nth-child(even) td{background:rgba(27,143,203,0.04)}
+td{transition:background 200ms ease}
+tbody tr:hover td{background:rgba(var(--shadow-rgb),0.08) !important}
+td.cell-id{font-family:'Inter',monospace;font-weight:700;font-style:italic;color:var(--primary);font-size:12.5px;letter-spacing:.04em}
+td.cell-date{font-weight:700;font-style:italic;color:var(--text);letter-spacing:.03em}
+.pay-drugs{font-size:11.5px;color:var(--text-muted);margin-top:2px}
+
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;text-transform:uppercase}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+.badge.pending,.badge.unpaid{color:#F59E0B;background:rgba(245,158,11,0.12)}
+.badge.approved,.badge.active,.badge.paid{color:#2CA1DE;background:rgba(27,143,203,0.12)}
+.badge.rejected,.badge.inactive{color:#EF4444;background:rgba(239,68,68,0.12)}
+.badge.cancelled,.badge.missed{color:#EF4444;background:rgba(239,68,68,0.12)}
+.badge.deactivated{color:var(--text-muted);background:rgba(148,163,184,0.16)}
+.badge.completed,.badge.dispensed,.badge.pending_verification{color:#2563EB;background:rgba(37,99,235,0.12)}
+.badge.locked{color:var(--text-muted);background:rgba(148,163,184,0.16);gap:5px}
+
+.form-wrap{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);padding:24px;margin-bottom:24px;box-shadow:0 4px 14px rgba(var(--shadow-rgb),0.06)}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.form-field{display:flex;flex-direction:column;min-width:0}
+.form-field.full{grid-column:1 / -1}
+.form-label{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.form-input,.form-select,.form-textarea{width:100%;padding:11px 14px;background:var(--input-bg);color:var(--text);border:1.5px solid var(--input-border);border-radius:var(--radius-input);font:500 14px 'Inter',sans-serif;transition:border-color 180ms ease,box-shadow 180ms ease}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(var(--shadow-rgb),0.15);outline:none}
+.form-textarea{min-height:90px;resize:vertical}
+.form-actions{margin-top:20px;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.disclaimer{font-size:12px;color:var(--text-muted);font-style:italic;margin-top:12px}
+.form-input.is-invalid,.form-textarea.is-invalid,.custom-select-wrap.is-invalid .custom-select-trigger{border-color:var(--error) !important;background:var(--input-bg-err)}
+.field-error{font-size:11.5px;color:var(--error);margin-top:5px;font-weight:600;display:none}
+.field-error.show{display:block}
+.form-input.is-muted,.custom-select-wrap.is-muted .custom-select-trigger{background:rgba(148,163,184,0.10);color:var(--text-muted);cursor:not-allowed;opacity:.85}
+.form-input:disabled,.form-input[readonly]{background:rgba(148,163,184,0.10);color:var(--text-muted);cursor:not-allowed}
+
+.state-box{text-align:center;padding:48px 24px;color:var(--text-muted);font-size:14px}
+.state-box i{font-size:36px;display:block;margin-bottom:10px;color:var(--text-muted);opacity:.7}
+.state-box .cta{margin-top:14px}
+
+/* Skeleton shimmer */
+.sk{position:relative;overflow:hidden;background:rgba(148,163,184,0.14);border-radius:8px;display:inline-block}
+.sk::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.55),transparent);animation:shimmer 1.4s infinite}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.sk-line{display:block;height:12px;border-radius:6px;margin:4px 0}
+.sk-stat{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);padding:22px 24px;display:flex;align-items:center;gap:16px}
+.sk-stat .sk-circle{width:48px;height:48px;border-radius:14px}
+.sk-stat .sk-meta{flex:1}
+.sk-row{display:flex;gap:10px;padding:14px 16px;border-bottom:1px solid var(--card-border-solid)}
+.sk-row .sk-line{flex:1}
+.sk-rx{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);padding:18px 22px;margin-bottom:12px}
+
+/* Slot cards */
+.slots-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:8px}
+.slot-card{background:var(--neu-bg);border:1.5px solid var(--card-border-solid);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:6px;cursor:pointer;transition:all 180ms ease;position:relative}
+.slot-card:hover:not(.disabled){border-color:var(--primary);transform:translateY(-2px);box-shadow:0 6px 18px rgba(var(--shadow-rgb),0.15)}
+.slot-card.selected{border-color:var(--primary);background:color-mix(in srgb, var(--primary) 8%, var(--panel-bg));box-shadow:0 6px 18px rgba(var(--shadow-rgb),0.20)}
+.slot-card.disabled{opacity:.5;cursor:not-allowed}
+.slot-date{font-weight:700;font-size:13px;color:var(--text)}
+.slot-shift{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.slot-spots{font-size:12px;color:var(--primary);font-weight:600;margin-top:2px}
+
+.pagination-wrap{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;flex-wrap:wrap;gap:10px}
+.pagination-info{font-size:12px;color:var(--text-muted)}
+.pagination{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.page-pill{min-width:34px;height:34px;padding:0 10px;border-radius:999px;border:1.5px solid var(--card-border-solid);background:var(--neu-bg);color:var(--text-muted);font:600 12px 'Inter';cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all 220ms cubic-bezier(0.34,1.4,0.64,1)}
+.page-pill:hover:not(:disabled){color:var(--text);transform:translateY(-2px) scale(1.06);border-color:var(--primary)}
+.page-pill.active{background:var(--brand-grad);color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(var(--shadow-rgb),0.30)}
+.page-pill:disabled{opacity:.4;cursor:not-allowed}
+
+/* ============ TOASTS (pill capsule) ============ */
+#toastContainer{position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:520px;padding:16px 16px 0;box-sizing:border-box;pointer-events:none}
+:root{
+  --warn-ic:#F59E0B; --warn-tint:#FEF3E2; --warn-text:#7C4A03;
+  --info-ic:#2563EB; --info-tint:#E3EFFE; --info-text:#1E3A6E;
+  --succ-ic:#16A34A; --succ-tint:#E4F6EA; --succ-text:#14532D;
+  --err-ic:#EF4444;  --err-tint:#FDE9E9;  --err-text:#7A1F1F;
+}
+.toast{
+  background:var(--warn-tint);border-radius:16px;border:none;
+  box-shadow:0 8px 24px rgba(15,23,42,0.12);
+  padding:12px 44px 12px 14px;display:flex;gap:10px;align-items:center;position:relative;
+  opacity:0;transform:translateY(-120%);
+  transition:transform .55s cubic-bezier(0.34,1.56,0.64,1),opacity .25s;
+  pointer-events:auto;touch-action:none;cursor:grab;width:fit-content;max-width:100%
+}
+.toast.is-dragging{cursor:grabbing;transition:none !important}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.hide{opacity:0;transform:translateY(-120%)}
+.toast .toast-icon{width:26px;height:26px;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0;background:var(--warn-ic)}
+.toast-text{font-weight:600;font-size:0.9rem;line-height:1.3;color:var(--warn-text);white-space:normal;overflow-wrap:break-word}
+.toast.t-info{background:var(--info-tint)}
+.toast.t-info .toast-icon{background:var(--info-ic)}
+.toast.t-info .toast-text{color:var(--info-text)}
+.toast.t-success{background:var(--succ-tint)}
+.toast.t-success .toast-icon{background:var(--succ-ic)}
+.toast.t-success .toast-text{color:var(--succ-text)}
+.toast.t-error{background:var(--err-tint)}
+.toast.t-error .toast-icon{background:var(--err-ic)}
+.toast.t-error .toast-text{color:var(--err-text)}
+.toast.t-warning .toast-text{color:var(--warn-text)}
+.toast-close{position:absolute;top:50%;right:12px;transform:translateY(-50%);border:none;background:transparent;cursor:pointer;color:inherit;opacity:.5;font-size:14px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:999px}
+.toast-close:hover{opacity:.9;background:rgba(0,0,0,0.06)}
+@media(max-width:640px){
+  #toastContainer{padding:12px 12px 0;max-width:100%}
+  .toast{padding:10px 38px 10px 12px;gap:8px;width:100%}
+  .toast .toast-icon{width:24px;height:24px;font-size:13px}
+  .toast-text{font-size:0.84rem}
+}
+
+.modal-backdrop{position:fixed;inset:0;background:rgba(10,20,16,0.45);backdrop-filter:blur(10px);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 200ms ease;overflow-y:auto}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-card{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);padding:24px;max-width:440px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.30);animation:popIn 280ms cubic-bezier(0.34,1.5,0.64,1);max-height:90vh;max-height:90dvh;overflow-y:auto;position:relative}
+.modal-card.wide{max-width:560px}
+@keyframes popIn{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes popInCentered{from{transform:translate(-50%,-50%) scale(.92);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.modal-title{font-size:17px;font-weight:700;color:var(--text);margin-bottom:8px}
+.modal-msg{font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:20px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.modal-branded-head{display:flex;align-items:center;gap:12px;padding-bottom:16px;margin-bottom:16px;border-bottom:2px dashed var(--card-border-solid)}
+.modal-branded-head .brand-icon{width:46px;height:46px}
+.modal-branded-head h3{font-size:16px;font-weight:800;color:var(--primary);margin:0;line-height:1.2}
+.modal-branded-head p{font-size:11.5px;color:var(--text-muted);margin-top:2px}
+
+/* Wizard */
+.wizard-progress{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:20px}
+.wiz-dot{width:10px;height:10px;border-radius:50%;background:var(--card-border-solid);transition:all 220ms ease}
+.wiz-dot.active{background:var(--brand-grad);width:28px;border-radius:6px;box-shadow:0 2px 8px rgba(var(--shadow-rgb),0.35)}
+.wiz-dot.done{background:var(--primary)}
+.wiz-step{display:none;animation:fadeUp 300ms ease}
+.wiz-step.active{display:block}
+.wiz-step h4{font-size:15px;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.wiz-step h4 i{color:var(--primary);font-size:18px}
+.wiz-review{background:var(--neu-bg);border:1px solid var(--card-border-solid);border-radius:12px;padding:14px}
+.wiz-review .rvw-row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;gap:12px}
+.wiz-review .rvw-row strong{color:var(--text-muted);font-weight:600}
+.wiz-review .rvw-row span{color:var(--text);font-weight:600;text-align:right}
+
+.drawer-backdrop{position:fixed;inset:0;background:rgba(10,20,16,0.35);backdrop-filter:blur(10px);z-index:95;opacity:0;visibility:hidden;transition:opacity 280ms ease,visibility 280ms ease}
+.drawer-backdrop.open{opacity:1;visibility:visible}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(86vw,320px);background:var(--panel-bg);border-left:1px solid var(--card-border);border-top-left-radius:24px;border-bottom-left-radius:24px;box-shadow:-20px 0 50px rgba(0,0,0,0.25);transform:translateX(110%);transition:transform 380ms cubic-bezier(0.34,1.2,0.64,1);z-index:96;display:flex;flex-direction:column;padding:24px}
+.drawer.open{transform:translateX(0)}
+.drawer-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.drawer-nav{display:flex;flex-direction:column;gap:8px;padding:14px 4px;overflow-y:auto;flex:1}
+.drawer-nav .nav-item{justify-content:flex-start;width:100%;border-radius:999px;padding:12px 16px;min-height:0;font-size:14px;font-weight:500;background:var(--bg);border:none;color:var(--text);box-shadow:none;opacity:1 !important}
+.drawer-nav .nav-item:hover,.drawer-nav .nav-item.active{background:var(--brand-grad);color:#fff}
+.drawer-foot{padding-top:14px;border-top:1px solid var(--card-border-solid)}
+
+/* Custom select */
+.custom-select-wrap{position:relative;width:100%;font-family:'Inter',sans-serif;z-index:1}
+.custom-select-wrap.open{z-index:100}
+.custom-select-trigger{width:100%;padding:11px 14px;background:var(--input-bg);color:var(--text);border:1.5px solid var(--input-border);border-radius:var(--radius-input);font:500 14px 'Inter',sans-serif;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;transition:border-color 180ms ease,box-shadow 180ms ease;text-align:left}
+.custom-select-trigger:hover{border-color:var(--primary)}
+.custom-select-wrap.open .custom-select-trigger{border-color:var(--primary);box-shadow:0 0 0 3px rgba(var(--shadow-rgb),0.15)}
+.custom-select-trigger .cs-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.custom-select-trigger .cs-label.placeholder{color:var(--text-muted)}
+.custom-select-trigger .cs-caret{transition:transform 220ms ease;color:var(--text-muted);font-size:18px;flex-shrink:0}
+.custom-select-wrap.open .cs-caret{transform:rotate(180deg);color:var(--primary)}
+.custom-select-options{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-input);box-shadow:0 12px 30px rgba(var(--shadow-rgb),0.18);padding:6px;z-index:200;max-height:0;overflow:hidden;opacity:0;transform:translateY(-6px) scaleY(0.96);transform-origin:top center;transition:max-height 240ms cubic-bezier(0.34,1.2,0.64,1),opacity 200ms ease,transform 220ms cubic-bezier(0.34,1.2,0.64,1),padding 200ms ease;pointer-events:none}
+.custom-select-wrap.open .custom-select-options{max-height:280px;overflow-y:auto;opacity:1;transform:translateY(0) scaleY(1);pointer-events:auto}
+.cs-option{padding:10px 12px;border-radius:8px;font:500 13px 'Inter',sans-serif;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;transition:background 140ms ease}
+.cs-option:hover,.cs-option.focused{background:color-mix(in srgb, var(--primary) 8%, var(--panel-bg))}
+.cs-option.active{color:var(--primary);font-weight:700;background:color-mix(in srgb, var(--primary) 10%, var(--panel-bg))}
+.cs-option.disabled{color:var(--text-muted);cursor:not-allowed;opacity:.7}
+
+/* Profile banner + accordion */
+.profile-banner{background:linear-gradient(135deg,rgba(27,143,203,0.14),rgba(44,161,222,0.08));border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);padding:24px;display:flex;align-items:center;gap:18px;margin-bottom:20px;box-shadow:0 4px 14px rgba(var(--shadow-rgb),0.10);flex-wrap:wrap}
+.pb-avatar{width:76px;height:76px;border-radius:50%;background:var(--brand-grad);color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;box-shadow:0 6px 18px rgba(var(--shadow-rgb),0.30);flex-shrink:0}
+.pb-info{flex:1;min-width:0}
+.pb-name{font-size:20px;font-weight:800;color:var(--text)}
+.pb-email{font-size:13px;color:var(--text-muted);margin-top:2px;word-break:break-all}
+.fact-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:16px 0}
+.fact-card{display:flex;align-items:flex-start;gap:10px;background:var(--neu-bg);border:1.5px solid var(--card-border-solid);border-radius:14px;padding:12px 14px;min-width:0}
+.fact-card.full{grid-column:1 / -1}
+.fact-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,rgba(27,143,203,0.15),rgba(44,161,222,0.10));border:1px solid rgba(var(--shadow-rgb),0.15);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.fact-meta{min-width:0}
+.fact-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted)}
+/* Report sections (charts + students-per-org) wrapped in the same card
+   treatment used by .fact-card / .ac-card / .stat-card elsewhere in the app. */
+.report-chart-wrap,.report-card{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);box-shadow:0 4px 6px rgba(0,0,0,0.04),0 10px 24px rgba(var(--shadow-rgb),0.08);padding:18px 20px}
+.fact-value{font-size:14px;font-weight:600;color:var(--text);margin-top:2px;word-break:break-word}
+@media(max-width:520px){.fact-grid{grid-template-columns:1fr}}
+.profile-groups{display:flex;flex-direction:column;gap:16px}
+.profile-group{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);box-shadow:0 4px 14px rgba(var(--shadow-rgb),0.06);overflow:hidden}
+.pg-head{padding:16px 22px;display:flex;align-items:center;gap:10px;font-weight:700;color:var(--text);cursor:pointer;user-select:none}
+.pg-head i.pg-icon{color:var(--primary);font-size:18px}
+.pg-head .pg-chev{margin-left:auto;color:var(--primary);font-size:20px;font-weight:700;transition:transform 260ms ease}
+.profile-group.open .pg-chev{transform:rotate(180deg)}
+.pg-head .pg-chev{color:var(--primary);font-size:20px;font-weight:700}
+.pg-body{max-height:0;overflow:hidden;transition:max-height 320ms cubic-bezier(0.34,1.1,0.64,1);padding:0 22px}
+.profile-group.open .pg-body{max-height:1200px;padding-bottom:20px}
+@media(max-width:768px){
+  .pg-head{padding:14px 18px}
+}
+.profile-save-bar{position:sticky;bottom:0;background:var(--panel-bg);border-top:1px solid var(--card-border-solid);padding:14px 20px;display:none;justify-content:flex-end;margin:16px -16px -16px;border-radius:0 0 var(--radius-card) var(--radius-card)}
+@media(max-width:768px){
+  .profile-save-bar{display:flex;position:fixed;left:0;right:0;bottom:0;margin:0;z-index:80;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));box-shadow:0 -8px 24px rgba(var(--shadow-rgb),0.12)}
+  .desktop-save-actions{display:none}
+}
+
+/* FAB */
+.fab{position:fixed;right:20px;bottom:calc(20px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;background:var(--brand-grad);color:#fff;border:none;display:none;align-items:center;justify-content:center;font-size:26px;cursor:pointer;box-shadow:0 10px 28px rgba(var(--shadow-rgb),0.45);z-index:85;transition:transform 200ms ease}
+.fab:hover{transform:scale(1.05)}
+.fab.show{display:flex;animation:popIn 300ms cubic-bezier(0.34,1.5,0.64,1)}
+
+.wiz-empty{padding:20px;text-align:center;color:var(--text-muted);font-size:13px}
+
+@media (max-width: 768px){
+  .topnav-strip-wrapper{display:none}
+  .hamburger{display:flex}
+  .form-grid{grid-template-columns:1fr}
+  .topbar-shell{margin:8px 10px 0;padding-inline:0;max-width:none}
+  .main{padding:clamp(16px,4vw,32px);padding-top:var(--main-top-offset,90px);padding-bottom:100px}
+  .page-title{font-size:20px}
+  .brand-name{font-size:13px}
+  .desktop-book-btn{display:none}
+}
+@media (min-width: 769px){
+  .fab{display:none !important}
+}
+@media (max-width: 480px){
+  .top-right .logout-btn span{display:none}
+}
+
+/* Refresh overlay shimmer */
+.refresh-host{position:relative}
+.refresh-host.refreshing::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,0.2),rgba(255,255,255,0.55),rgba(255,255,255,0.2));background-size:200% 100%;animation:refreshShimmer 1.4s linear infinite;pointer-events:none;z-index:5;border-radius:inherit}
+.refresh-host.refreshing > *{opacity:.55;transition:opacity 200ms ease;pointer-events:none}
+@keyframes refreshShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+.ac-sk{border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);background:var(--panel-bg);padding:14px;margin-bottom:10px;display:flex;gap:12px;align-items:center}
+.ac-sk .sk-circle{width:38px;height:38px;border-radius:50%}
+.ac-sk .sk-meta{flex:1}
+
+/* Accordion cards (approvals list) — same collapsible language as .profile-group */
+.ac-list{display:flex;flex-direction:column;gap:12px}
+.ac-card{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);box-shadow:0 4px 14px rgba(var(--shadow-rgb),0.06);overflow:hidden;transition:border-color 220ms ease,box-shadow 220ms ease}
+.ac-card.open{border-color:rgba(var(--shadow-rgb),0.35);box-shadow:0 10px 26px rgba(var(--shadow-rgb),0.14)}
+.ac-head{padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none}
+.ac-avatar{width:38px;height:38px;border-radius:50%;background:var(--brand-grad);color:#fff;display:flex;align-items:center;justify-content:center;font:800 13px 'Inter',sans-serif;flex-shrink:0;box-shadow:0 4px 12px rgba(var(--shadow-rgb),0.28)}
+.ac-head-meta{min-width:0;flex:1}
+.ac-head-title{font:700 14px 'Inter',sans-serif;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ac-head-sub{font-size:12px;color:var(--text-muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ac-chev{color:var(--primary);font-size:20px;transition:transform 260ms ease;flex-shrink:0}
+.ac-card.open .ac-chev{transform:rotate(180deg)}
+.ac-body{max-height:0;overflow:hidden;transition:max-height 320ms cubic-bezier(0.34,1.1,0.64,1);padding:0 18px}
+.ac-card.open .ac-body{max-height:900px;padding-bottom:18px}
+/* Announcements-only: force every card fully open on desktop, no accordion
+   interaction. Dense multi-field tabs (Students, Supervisors, etc.) are
+   untouched — they keep the default collapse/expand accordion above. */
+@media(min-width:769px){
+  .ac-list-flat .ac-head{cursor:default}
+  .ac-list-flat .ac-chev{display:none}
+  .ac-list-flat .ac-body{max-height:none !important;padding-bottom:18px}
+  .ac-list-flat .ac-card,.ac-list-flat .ac-card.open{border-color:var(--card-border-solid);box-shadow:0 4px 14px rgba(var(--shadow-rgb),0.06)}
+}
+.ac-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;padding-top:6px}
+
+/* ===== Stage 4: outer surface card for Logbook + Grade tabs ===== */
+.tab-surface-card{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);box-shadow:0 4px 6px rgba(0,0,0,0.04),0 10px 24px rgba(var(--shadow-rgb),0.08);padding:20px 22px}
+@media(max-width:768px){
+  .tab-surface-card{padding:16px 16px}
+}
+@media(max-width:480px){
+  .tab-surface-card{padding:14px 12px;border-radius:16px}
+}
+
+/* ===== Stage 4: Status-tab hero card + promoted doc-progress card ===== */
+.status-hero{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);padding:24px;margin-bottom:18px;box-shadow:0 4px 14px rgba(var(--shadow-rgb),0.06)}
+.status-hero .ac-head{padding:0;margin-bottom:14px}
+.status-hero .ac-avatar{width:46px;height:46px;font-size:16px}
+.status-hero .ac-head-title{font-size:16px}
+.status-hero .fact-grid{padding-top:0}
+@media(max-width:520px){
+  .status-hero{padding:18px}
+}
+
+/* ===== Stage 2: organization cards + logbook timeline ===== */
+.org-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.org-card{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);box-shadow:0 4px 14px rgba(var(--shadow-rgb),0.06);padding:16px 18px;display:flex;flex-direction:column;gap:10px;cursor:pointer;transition:transform 240ms cubic-bezier(0.34,1.4,0.64,1),box-shadow 240ms ease,border-color 240ms ease;position:relative;text-align:left}
+.org-card:hover{transform:translateY(-4px);border-color:rgba(var(--shadow-rgb),0.35);box-shadow:0 12px 28px rgba(var(--shadow-rgb),0.16)}
+.org-card:active{transform:translateY(0) scale(.99)}
+.org-card.selected{border-color:var(--primary);background:color-mix(in srgb, var(--primary) 7%, var(--panel-bg));box-shadow:0 10px 26px rgba(var(--shadow-rgb),0.20)}
+.org-card-head{display:flex;align-items:center;gap:10px;min-width:0}
+.org-card-name{font:700 14.5px 'Inter',sans-serif;color:var(--text);min-width:0;overflow-wrap:anywhere}
+.org-line{display:flex;align-items:flex-start;gap:8px;font:500 12.5px 'Inter',sans-serif;color:var(--text-muted);overflow-wrap:anywhere}
+.org-line i{font-size:15px;color:var(--primary);flex-shrink:0;margin-top:1px}
+.org-foot{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:2px}
+.org-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font:700 11px 'Inter',sans-serif;color:var(--primary);background:rgba(var(--shadow-rgb),0.10)}
+.org-pill.muted{color:var(--text-muted);background:rgba(148,163,184,0.16)}
+.selected-flag{display:inline-flex;align-items:center;gap:5px;font:700 10.5px 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.06em;color:var(--primary)}
+.banner-note{display:flex;align-items:flex-start;gap:10px;background:linear-gradient(135deg,rgba(27,143,203,0.14),rgba(44,161,222,0.08));border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);padding:14px 16px;margin-bottom:18px;font:600 13px 'Inter',sans-serif;color:var(--text)}
+.banner-note i{font-size:20px;color:var(--primary);flex-shrink:0}
+.banner-note .bn-sub{font-weight:500;font-size:12.5px;color:var(--text-muted);margin-top:3px}
+.log-entry-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font:600 12px 'Inter',sans-serif;color:var(--text-muted)}
+.log-text{font:500 13.5px 'Inter',sans-serif;color:var(--text);line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+.inline-warn{display:flex;align-items:center;gap:8px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.28);color:#7C4A03;border-radius:10px;padding:10px 12px;font:600 12.5px 'Inter',sans-serif;margin-bottom:4px}
+.inline-warn i{font-size:16px;color:var(--warning);flex-shrink:0}
+
+/* ===== Stage 3: document cards, announcement feed, grade report ===== */
+.doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.doc-card{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);box-shadow:0 4px 14px rgba(var(--shadow-rgb),0.06);padding:18px;display:flex;flex-direction:column;gap:12px;transition:transform 240ms cubic-bezier(0.34,1.4,0.64,1),box-shadow 240ms ease,border-color 240ms ease}
+.doc-card:hover{transform:translateY(-4px);border-color:rgba(var(--shadow-rgb),0.35);box-shadow:0 12px 28px rgba(var(--shadow-rgb),0.16)}
+.doc-card.is-uploaded{border-color:rgba(22,163,74,0.30)}
+.doc-card-head{display:flex;align-items:center;gap:12px;min-width:0}
+.doc-icon{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,rgba(27,143,203,0.15),rgba(44,161,222,0.10));border:1px solid rgba(var(--shadow-rgb),0.15);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.doc-card.is-uploaded .doc-icon{background:rgba(22,163,74,0.12);border-color:rgba(22,163,74,0.25);color:var(--success)}
+.doc-card-name{font:700 14px 'Inter',sans-serif;color:var(--text);min-width:0;overflow-wrap:anywhere}
+.doc-card-status{font:600 12px 'Inter',sans-serif;color:var(--text-muted);margin-top:2px;display:flex;align-items:center;gap:5px;min-width:0}
+.doc-card-status i{font-size:14px;flex-shrink:0}
+.doc-card-status.uploaded{color:var(--success)}
+.doc-card-file{font:500 12px 'Inter',sans-serif;color:var(--text-muted);background:var(--bg);border-radius:8px;padding:8px 10px;display:flex;align-items:center;gap:8px;overflow-wrap:anywhere}
+.doc-card-file i{font-size:16px;color:var(--primary);flex-shrink:0}
+
+.annc-card{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);box-shadow:0 4px 14px rgba(var(--shadow-rgb),0.06);padding:18px 20px}
+.annc-head-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.annc-title{display:inline-flex;align-items:center;gap:8px;font:700 13.5px 'Inter',sans-serif;color:var(--primary);background:rgba(var(--shadow-rgb),0.10);border:1px solid rgba(var(--shadow-rgb),0.18);border-radius:10px;padding:7px 14px;overflow-wrap:anywhere}
+.annc-title i{font-size:15px;flex-shrink:0}
+.annc-date{font:700 10.5px 'Inter',sans-serif;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;white-space:nowrap;flex-shrink:0;padding-top:8px}
+.annc-body{font:500 13.5px 'Inter',sans-serif;color:var(--text);line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:520px){
+  .annc-head-row{flex-direction:column;gap:6px}
+  .annc-date{padding-top:0}
+}
+
+.grade-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:999px;font:800 12px 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.04em}
+.grade-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.grade-badge.gb-excellent,.grade-badge.gb-very-good{color:var(--success);background:rgba(22,163,74,0.12)}
+.grade-badge.gb-good{color:var(--info);background:rgba(37,99,235,0.12)}
+.grade-badge.gb-fair{color:var(--warning);background:rgba(245,158,11,0.12)}
+.grade-badge.gb-poor{color:var(--error);background:rgba(239,68,68,0.12)}
+.grade-total-card{background:linear-gradient(135deg,rgba(27,143,203,0.14),rgba(44,161,222,0.08));border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);padding:24px;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap;box-shadow:0 4px 14px rgba(var(--shadow-rgb),0.10)}
+.grade-total-value{font-size:36px;font-weight:800;color:var(--text);line-height:1}
+.grade-total-label{font:600 12px 'Inter',sans-serif;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
+.rubric-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:20px}
+.rubric-card{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:14px;padding:14px 16px}
+.rubric-label{font:600 11.5px 'Inter',sans-serif;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
+.rubric-score-row{display:flex;align-items:baseline;gap:4px;margin-bottom:8px}
+.rubric-score{font:800 20px 'Inter',sans-serif;color:var(--text)}
+.rubric-max{font:600 12px 'Inter',sans-serif;color:var(--text-muted)}
+.rubric-bar-track{height:6px;border-radius:999px;background:var(--bg);overflow:hidden}
+.rubric-bar-fill{height:100%;border-radius:999px;background:var(--brand-grad)}
+.grade-note-card{background:var(--panel-bg);border:1.5px solid var(--card-border-solid);border-radius:var(--radius-card);padding:18px 20px}
+.grade-note-label{font:700 12px 'Inter',sans-serif;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.grade-note-text{font:500 13.5px 'Inter',sans-serif;color:var(--text);line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
+
+/* Bottom sheet modal system (mobile only) — confirmations opt out via .no-sheet */
+@keyframes slideUp{from{transform:translateY(100%);opacity:.5}to{transform:translateY(0);opacity:1}}
+.sheet-handle{display:none;width:44px;height:5px;border-radius:999px;background:var(--card-border-solid);margin:-8px auto 12px}
+.sheet-head-sticky{position:sticky;top:calc(-20px - env(safe-area-inset-top,0px));background:var(--panel-bg);z-index:26;margin:-20px -18px 12px;padding:14px 18px 10px}
+@media(max-width:768px){
+  .modal-backdrop{padding:0;align-items:flex-end}
+  .modal-card:not(.no-sheet),
+  .modal-card.wide:not(.no-sheet),
+  .modal-card.sheet:not(.no-sheet){position:fixed;left:0;right:0;bottom:0;top:auto;width:100%;max-width:none;border-radius:24px 24px 0 0;max-height:85vh;max-height:85dvh;overflow-y:auto;overflow-x:hidden;animation:slideUp 320ms cubic-bezier(0.22,1,0.36,1);padding:20px 18px calc(16px + env(safe-area-inset-bottom,0px));border-bottom:none}
+  .modal-card:not(.no-sheet) .sheet-handle{display:block}
+  .modal-card:not(.no-sheet) .modal-actions{position:sticky;bottom:calc(-16px - env(safe-area-inset-bottom,0px));background:var(--panel-bg);margin-top:14px;padding:12px 0 calc(10px + env(safe-area-inset-bottom,0px));z-index:26;border-top:1px solid var(--card-border-solid)}
+  .modal-card:not(.no-sheet) .modal-actions .btn-primary{flex:1;justify-content:center}
+  /* Confirmation dialogs must stay small centered popups on mobile too. */
+  .modal-card.no-sheet{position:fixed;left:50%;right:auto;top:50%;bottom:auto;transform:translate(-50%,-50%);width:calc(100% - 32px);max-width:440px;border-radius:var(--radius-card);max-height:90vh;max-height:90dvh;animation:popInCentered 280ms cubic-bezier(0.34,1.5,0.64,1);padding:24px}
+  .modal-card.no-sheet .sheet-handle{display:none}
+}
+@media(min-width:769px){
+  .sheet-head-sticky{position:static;background:none;margin:0;padding:0}
+}
+
+/* Button loading — mute button, three dots pulse in a traveling wave */
+.btn.loading{
+  background: var(--text-muted) !important;
+  border-color: var(--text-muted) !important;
+  color: var(--panel-bg) !important;
+  opacity: .6;
+  pointer-events: none;
+}
+.btn.loading .btn-icon,
+.btn.loading .btn-text{
+  display: none;
+}
+.btn-dots{
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.btn.loading .btn-dots{
+  display: inline-flex;
+}
+.btn-dots span{
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: dotPulse 1.2s ease-in-out infinite;
+}
+.btn-dots span:nth-child(1){ animation-delay: 0s; }
+.btn-dots span:nth-child(2){ animation-delay: .15s; }
+.btn-dots span:nth-child(3){ animation-delay: .3s; }
+@keyframes dotPulse{
+  0%, 80%, 100% { transform: scale(1);   opacity: .6; }
+  40%           { transform: scale(1.6); opacity: 1;  }
+}
+</style>
+</head>
+<body>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="med-bg" id="medBg"></div>
+
+<div id="authScreen">
+  <div class="auth-logo-pulse" style="width:64px;height:64px;border-radius:14px;background:var(--brand-grad);display:flex;align-items:center;justify-content:center;color:#fff;font-size:32px;box-shadow:0 6px 20px rgba(var(--shadow-rgb),0.35);overflow:hidden"><img src="assets/jsp-logo.png" alt="Jigawa State Polytechnic Logo" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+  <div>Verifying session…</div>
+</div>
+
+<div id="app" style="display:none">
+  <div class="layout">
+    <div class="topbar-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-icon"><img src="assets/jsp-logo.png" alt="Jigawa State Polytechnic Logo" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+          <div>
+            <div class="brand-name">Jigawa State Polytechnic</div>
+            <div class="brand-kicker">SIWES Student</div>
+          </div>
+        </div>
+        <div class="top-right">
+          <button class="icon-btn hamburger" id="menuBtn" aria-label="Open menu"><i class="ph ph-list"></i></button>
+          <button class="logout-btn desktop-logout-btn" id="logoutBtn"><i class="ph-bold ph-sign-out"></i><span>Log out</span></button>
+        </div>
+      </header>
+    </div>
+
+    <div class="topnav-strip-wrapper" id="desktopNavWrapper">
+      <div class="topnav-strip-outer">
+        <nav class="topnav-strip" id="topnav"></nav>
+      </div>
+    </div>
+
+    <aside class="island-nav" id="islandNav" aria-label="Primary navigation">
+      <div class="island-profile" id="islandProfile" tabindex="0">
+        <div class="island-avatar" id="islandAvatar"><i class="ph-bold ph-student"></i></div>
+        <div class="island-profile-meta island-label">
+          <div class="island-profile-name" id="islandName">—</div>
+          <span class="island-profile-badge">SIWES Student</span>
+        </div>
+      </div>
+      <div class="island-divider"></div>
+      <nav class="island-nav-list" id="islandNavList"></nav>
+      <div class="island-divider"></div>
+      <div class="island-footer" id="islandFooter" tabindex="0">
+        <div class="island-footer-glyph"><i class="ph-bold ph-graduation-cap"></i></div>
+        <div class="island-footer-lines island-label">
+          <div>SIWES Unit</div>
+          <div>Academic Affairs</div>
+          <div>Jigawa State Polytechnic</div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="drawer-backdrop" id="drawerBackdrop"></div>
+    <aside class="drawer" id="drawer">
+      <div class="drawer-head">
+        <div class="brand">
+          <div class="brand-icon"><img src="assets/jsp-logo.png" alt="Jigawa State Polytechnic Logo" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+          <div><span class="drawer-title">Navigation</span></div>
+        </div>
+        <button class="icon-btn" id="drawerClose" aria-label="Close menu"><i class="ph ph-x"></i></button>
+      </div>
+      <nav class="drawer-nav" id="drawerNav"></nav>
+      <div class="drawer-foot">
+        <button class="logout-btn" style="width:100%;justify-content:center" id="logoutBtnDrawer"><i class="ph-bold ph-sign-out"></i> Log out</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- STATUS (home) -->
+      <section class="page active" id="page-status">
+        <div class="page-header-row">
+          <div>
+            <div class="page-title">My Status</div>
+            <div class="page-title-sub" id="welcomeMsg">Welcome…</div>
+          </div>
+          <div class="page-header-actions">
+            <button class="icon-btn" id="refreshStatusBtn" aria-label="Refresh"><i class="ph ph-arrows-clockwise"></i></button>
+          </div>
+        </div>
+        <div id="statusPlacement" style="margin-bottom:18px"></div>
+        <div id="statusDocsCard" style="margin-bottom:18px"></div>
+        <div id="orgRoot"></div>
+      </section>
+
+      <!-- LOGBOOK -->
+      <section class="page" id="page-logbook">
+        <div class="page-header-row">
+          <div>
+            <div class="page-title">Logbook</div>
+            <div class="page-title-sub" id="welcomeMsg-logbook">Welcome…</div>
+          </div>
+          <div class="page-header-actions">
+            <button class="icon-btn" id="refreshLogbookBtn" aria-label="Refresh"><i class="ph ph-arrows-clockwise"></i></button>
+          </div>
+        </div>
+        <div class="tab-surface-card"><div id="logbookRoot"></div></div>
+      </section>
+
+      <!-- DOCUMENTS -->
+      <section class="page" id="page-documents">
+        <div class="page-header-row">
+          <div>
+            <div class="page-title">Documents</div>
+            <div class="page-title-sub" id="welcomeMsg-documents">Welcome…</div>
+          </div>
+          <div class="page-header-actions">
+            <button class="icon-btn" id="refreshDocumentsBtn" aria-label="Refresh"><i class="ph ph-arrows-clockwise"></i></button>
+          </div>
+        </div>
+        <div id="documentsRoot"></div>
+        <input type="file" id="docFileInput" style="display:none" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
+      </section>
+
+      <!-- ANNOUNCEMENTS -->
+      <section class="page" id="page-announcements">
+        <div class="page-header-row">
+          <div>
+            <div class="page-title">Announcements</div>
+            <div class="page-title-sub" id="welcomeMsg-announcements">Welcome…</div>
+          </div>
+          <div class="page-header-actions">
+            <button class="icon-btn" id="refreshAnnouncementsBtn" aria-label="Refresh"><i class="ph ph-arrows-clockwise"></i></button>
+          </div>
+        </div>
+        <div id="announcementsRoot"></div>
+      </section>
+
+      <!-- GRADE -->
+      <section class="page" id="page-grade">
+        <div class="page-header-row">
+          <div>
+            <div class="page-title">Grade</div>
+            <div class="page-title-sub" id="welcomeMsg-grade">Welcome…</div>
+          </div>
+          <div class="page-header-actions">
+            <button class="icon-btn" id="refreshGradeBtn" aria-label="Refresh"><i class="ph ph-arrows-clockwise"></i></button>
+          </div>
+        </div>
+        <div class="tab-surface-card"><div id="gradeRoot"></div></div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+
+const SUPABASE_URL = 'https://aphopvugdnnmjyhgohsr.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwaG9wdnVnZG5ubWp5aGdvaHNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4NzM2MTUsImV4cCI6MjEwMzQ0OTYxNX0.3n8LCodIbnuPNefVQbSpw2tBAVkEL4a2y0SYsNa5BKQ'
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+let currentUser = null, currentStudentId = null
+
+const NAV_ITEMS = [
+  { tab:'status',        label:'Status',        icon:'ph-house' },
+  { tab:'logbook',       label:'Logbook',       icon:'ph-notebook' },
+  { tab:'documents',     label:'Documents',     icon:'ph-files' },
+  { tab:'announcements', label:'Announcements', icon:'ph-megaphone' },
+  { tab:'grade',         label:'Grade',         icon:'ph-medal' },
+]
+
+/* SIWES-bg */
+function initMedBg(){
+  const bg=document.getElementById('medBg'); if(!bg||bg.dataset.done) return
+  const icons=['ph-graduation-cap','ph-briefcase','ph-notebook','ph-buildings','ph-certificate','ph-file-text','ph-student','ph-clipboard-text']
+  const n=18
+  for(let i=0;i<n;i++){
+    const el=document.createElement('i'); el.className='ph '+icons[i%icons.length]
+    el.style.left=(Math.random()*100)+'%'; el.style.fontSize=(18+Math.random()*18)+'px'
+    el.style.animationDuration=(14+Math.random()*20)+'s'; el.style.animationDelay=(-Math.random()*20)+'s'
+    bg.appendChild(el)
+  }
+  bg.dataset.done='1'
+}
+
+function renderNav(){
+  const top = document.getElementById('topnav')
+  const drw = document.getElementById('drawerNav')
+  const html = NAV_ITEMS.map((n,i) => `<button class="nav-item ${i===0?'active':''}" data-tab="${n.tab}" aria-label="${n.label}"><i class="ph ${n.icon}"></i> ${n.label}</button>`).join('')
+  top.innerHTML = html; drw.innerHTML = html
+  document.querySelectorAll('.nav-item').forEach(el => el.addEventListener('click', () => switchTab(el.dataset.tab)))
+
+  const island = document.getElementById('islandNavList')
+  if (island){
+    island.innerHTML = NAV_ITEMS.map((n,i) => `<button type="button" class="island-nav-item ${i===0?'active':''}" data-tab="${n.tab}" aria-label="${n.label}"><i class="ph ${n.icon}"></i><span class="island-label">${n.label}</span></button>`).join('')
+    island.querySelectorAll('.island-nav-item').forEach(el => el.addEventListener('click', () => switchTab(el.dataset.tab)))
+  }
+}
+
+/* Island profile — student's own name + role badge */
+function setupIslandProfile(fullName){
+  const nameEl = document.getElementById('islandName')
+  if (nameEl) nameEl.textContent = fullName || 'Student'
+  const av = document.getElementById('islandAvatar')
+  if (av && fullName) av.textContent = initials(fullName)
+}
+
+/* Fill every per-tab "Welcome, [name]" heading */
+function setWelcomeMessages(fullName){
+  const msg = fullName ? `Welcome, ${fullName}` : 'Welcome, Student'
+  const ids = ['welcomeMsg','welcomeMsg-logbook','welcomeMsg-documents','welcomeMsg-announcements','welcomeMsg-grade']
+  ids.forEach(id => { const el = document.getElementById(id); if (el) el.textContent = msg })
+}
+
+/* =============== HELPERS =============== */
+function escHtml(s){ if (s == null) return ''; return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])) }
+function emptyIcon(){ return '<i class="ph ph-minus" style="color:var(--text-muted);opacity:.4"></i>' }
+/* Store full text values off-DOM so we can show them in a modal via a small eye-icon button in table cells */
+const TEXT_PREVIEW_STORE = {}
+let __textPreviewSeq = 0
+function eyeIconCell(text, title='Details'){
+  if (!text) return emptyIcon()
+  const key = 'tp' + (__textPreviewSeq++)
+  TEXT_PREVIEW_STORE[key] = { text: String(text), title }
+  return `<button type="button" class="icon-btn eye-btn" data-text-preview="${key}" aria-label="View ${escHtml(title)}"><i class="ph-bold ph-eye"></i></button>`
+}
+function wireEyeIconCells(container){
+  container.querySelectorAll('[data-text-preview]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const entry = TEXT_PREVIEW_STORE[btn.dataset.textPreview]
+      if (!entry) return
+      showInfoModal(entry.title, `<div style="white-space:pre-wrap;line-height:1.6">${escHtml(entry.text)}</div>`)
+    })
+  })
+}
+function formatDate(d){ if(!d) return '—'; const dt=new Date(d); if(isNaN(dt)) return escHtml(d); return dt.toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}) }
+function formatDateTime(d){ if(!d) return '—'; const dt=new Date(d); if(isNaN(dt)) return escHtml(d); return dt.toLocaleString('en-US',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) }
+function formatCurrency(n){ const v = Number(n||0); return '₦' + v.toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2}) }
+function badge(status){ if(!status) return emptyIcon(); const s = String(status).toLowerCase(); return `<span class="badge ${escHtml(s)}">${escHtml(s.replace(/_/g,' '))}</span>` }
+function initials(name){ if(!name) return '?'; return name.trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase() }
+function computeAge(dob){
+  if (!dob) return null
+  const d = new Date(dob); if (isNaN(d)) return null
+  const now = new Date()
+  let age = now.getFullYear() - d.getFullYear()
+  const m = now.getMonth() - d.getMonth()
+  if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--
+  return age >= 0 ? age : null
+}
+function isNetworkError(err){
+  if (!err) return false
+  const m = (err.message || String(err)).toLowerCase()
+  return m.includes('failed to fetch') || m.includes('networkerror') || m.includes('load failed') || !navigator.onLine
+}
+function handleErr(err, fallback='Something went wrong'){
+  if (isNetworkError(err)){ showToast('error','Check your internet connection'); return }
+  showToast('error', err?.message || fallback)
+}
+
+function formatTime(t){ if(!t) return '—'; const s=String(t); const m=s.match(/^(\d{1,2}):(\d{2})/); if(!m) return escHtml(s); let h=parseInt(m[1],10); const ap=h>=12?'PM':'AM'; h=h%12||12; return `${h}:${m[2]} ${ap}` }
+
+/* ============ Button loading helper (traveling wave of 3 pulsing dots) ============
+   Buttons must follow: <button class="btn-* btn"><i class="btn-icon …"></i><span class="btn-text">…</span><span class="btn-dots"><span></span><span></span><span></span></span></button> */
+function setBtnLoading(btn, on){
+  if (!btn) return
+  if (on){
+    if (btn.dataset.loadingOrig === undefined) btn.dataset.loadingOrig = btn.innerHTML
+    // Lock the button's current on-screen width BEFORE swapping its content
+    // for the loading dots, so hiding the icon/text can't shrink the button
+    // and drag the modal-actions row (and anything sticky below it) with it.
+    const lockedWidth = btn.getBoundingClientRect().width
+    btn.style.width = lockedWidth + 'px'
+    btn.disabled = true
+    btn.classList.add('loading')
+  } else {
+    btn.disabled = false
+    btn.classList.remove('loading')
+    btn.style.width = ''
+    delete btn.dataset.loadingOrig
+  }
+}
+function setBtnLabel(btn, label){ const t = btn && btn.querySelector('.btn-text'); if (t) t.textContent = label }
+
+/* Skeleton for accordion card lists */
+function skCards(n=4){
+  let h=''
+  for(let i=0;i<n;i++) h+=`<div class="ac-sk"><div class="sk sk-circle"></div><div class="sk-meta"><span class="sk sk-line" style="width:45%"></span><span class="sk sk-line" style="width:65%"></span></div></div>`
+  return h
+}
+
+function buildPagination(pagEl, infoEl, currentPage, pageSize, totalCount, loadFn){
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
+  const from = totalCount === 0 ? 0 : (currentPage-1)*pageSize + 1
+  const to = Math.min(currentPage*pageSize, totalCount)
+  infoEl.textContent = totalCount === 0 ? 'No results' : `Showing ${from}–${to} of ${totalCount}`
+  let html = `<button class="page-pill" ${currentPage===1?'disabled':''} data-p="${currentPage-1}" aria-label="Previous page"><i class="ph ph-caret-left"></i></button>`
+  const maxShow = 5; let start = Math.max(1, currentPage - 2); let end = Math.min(totalPages, start + maxShow - 1); start = Math.max(1, end - maxShow + 1)
+  for (let i = start; i <= end; i++) html += `<button class="page-pill ${i===currentPage?'active':''}" data-p="${i}">${i}</button>`
+  html += `<button class="page-pill" ${currentPage===totalPages?'disabled':''} data-p="${currentPage+1}" aria-label="Next page"><i class="ph ph-caret-right"></i></button>`
+  pagEl.innerHTML = html
+  pagEl.querySelectorAll('.page-pill[data-p]').forEach(btn => btn.addEventListener('click', () => {
+    const p = parseInt(btn.dataset.p,10); if (!isNaN(p) && p >= 1 && p <= totalPages) loadFn(p)
+  }))
+}
+
+/* Skeleton builders */
+function skStatGrid(n=4){ let h=''; for(let i=0;i<n;i++) h+=`<div class="sk-stat"><div class="sk sk-circle"></div><div class="sk-meta"><span class="sk sk-line" style="width:60%"></span><span class="sk sk-line" style="width:40%;height:18px"></span></div></div>`; return h }
+function skTable(rows=5){
+  let h='<table><thead><tr><th></th><th></th><th></th><th></th></tr></thead><tbody>'
+  for(let i=0;i<rows;i++) h+=`<tr><td><span class="sk sk-line" style="width:70px"></span></td><td><span class="sk sk-line" style="width:120px"></span></td><td><span class="sk sk-line" style="width:80px"></span></td><td><span class="sk sk-line" style="width:60px"></span></td></tr>`
+  h+='</tbody></table>'; return h
+}
+function skRxList(n=3){ let h=''; for(let i=0;i<n;i++) h+=`<div class="sk-rx"><span class="sk sk-line" style="width:40%;height:14px"></span><span class="sk sk-line" style="width:60%"></span></div>`; return h }
+/* =============== TOAST =============== */
+function showToast(type, message){
+  const duration = type === 'error' ? 6000 : 4000
+  const wrap = document.getElementById('toastContainer')
+  const t = document.createElement('div')
+  t.className = `toast t-${type}`
+  const icons = { success:'ph-check', error:'ph-x', info:'ph-info', warning:'ph-warning' }
+  const ic = icons[type] || icons.info
+  t.innerHTML = `<div class="toast-icon"><i class="ph-bold ${ic}"></i></div><div class="toast-text">${escHtml(message)}</div><button class="toast-close" aria-label="Close"><i class="ph ph-x"></i></button>`
+  wrap.appendChild(t)
+  requestAnimationFrame(() => t.classList.add('show'))
+
+  const dismiss = () => { t.classList.add('hide'); setTimeout(() => t.remove(), 300) }
+  t.querySelector('.toast-close').addEventListener('click', dismiss)
+  let autoTimer = setTimeout(dismiss, duration)
+
+  // Drag/swipe-to-dismiss (mouse + touch): drag the toast up, left, or right past a distance
+  // threshold to close it early; downward drag doesn't count since the toast lives at the top.
+  const DISMISS_THRESHOLD = 80
+  let startX = 0, startY = 0, curX = 0, curY = 0, dragging = false
+
+  function onDragStart(x, y){
+    startX = x; startY = y; curX = 0; curY = 0
+    dragging = true
+    clearTimeout(autoTimer)
+    t.classList.add('is-dragging')
+    t.style.transition = 'none'
+  }
+  function onDragMove(x, y){
+    if (!dragging) return
+    curX = x - startX; curY = y - startY
+    const effY = Math.min(curY, 0)
+    const dist = Math.hypot(curX, effY)
+    const opacity = Math.max(0, 1 - dist / (DISMISS_THRESHOLD * 1.5))
+    t.style.transform = `translate(${curX}px, ${curY}px)`
+    t.style.opacity = opacity
+  }
+  function onDragEnd(){
+    if (!dragging) return
+    dragging = false
+    const effY = Math.min(curY, 0)
+    const dist = Math.hypot(curX, effY)
+    if (dist >= DISMISS_THRESHOLD){
+      const scale = 2.5
+      t.style.transition = 'transform 250ms ease, opacity 200ms ease'
+      t.style.transform = `translate(${curX*scale}px, ${curY*scale}px)`
+      t.style.opacity = '0'
+      setTimeout(() => t.remove(), 260)
+    } else {
+      t.style.transition = 'transform 320ms cubic-bezier(0.34,1.56,0.64,1), opacity 200ms ease'
+      t.style.transform = 'translate(0,0)'
+      t.style.opacity = '1'
+      t.classList.remove('is-dragging')
+      autoTimer = setTimeout(dismiss, 3000)
+    }
+  }
+  t.addEventListener('mousedown', e => {
+    if (e.target.closest('.toast-close')) return
+    onDragStart(e.clientX, e.clientY)
+    const onMove = ev => onDragMove(ev.clientX, ev.clientY)
+    const onUp = () => { onDragEnd(); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp) }
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup', onUp)
+  })
+  t.addEventListener('touchstart', e => {
+    if (e.target.closest('.toast-close')) return
+    const touch = e.touches[0]
+    onDragStart(touch.clientX, touch.clientY)
+  }, {passive:true})
+  t.addEventListener('touchmove', e => {
+    const touch = e.touches[0]
+    onDragMove(touch.clientX, touch.clientY)
+    e.preventDefault()
+  }, {passive:false})
+  t.addEventListener('touchend', onDragEnd)
+  t.addEventListener('touchcancel', onDragEnd)
+}
+
+/* =============== CONFIRM =============== */
+function showConfirm(title, message, confirmLabel='Confirm', extraClass=''){
+  return new Promise(resolve => {
+    const bd = document.createElement('div')
+    bd.className = 'modal-backdrop'
+    bd.innerHTML = `<div class="modal-card${extraClass ? ' ' + extraClass : ''}"><div class="modal-title">${escHtml(title)}</div><div class="modal-msg">${escHtml(message)}</div><div class="modal-actions"><button class="btn-secondary" data-act="cancel">Cancel</button><button class="btn-danger" data-act="ok" style="padding:10px 20px;font-size:13px">${escHtml(confirmLabel)}</button></div></div>`
+    document.body.appendChild(bd)
+    const close = v => { bd.remove(); resolve(v) }
+    bd.addEventListener('click', e => { if (e.target === bd) close(false) })
+    bd.querySelector('[data-act="cancel"]').addEventListener('click', () => close(false))
+    bd.querySelector('[data-act="ok"]').addEventListener('click', () => close(true))
+  })
+}
+function showInfoModal(title, htmlBody){
+  const bd = document.createElement('div')
+  bd.className = 'modal-backdrop'
+  bd.innerHTML = `<div class="modal-card sheet"><div class="sheet-head-sticky"><div class="sheet-handle"></div><div class="modal-title" style="margin-bottom:0">${escHtml(title)}</div></div><div class="modal-msg">${htmlBody}</div><div class="modal-actions"><button class="btn-primary" data-act="close">Close</button></div></div>`
+  document.body.appendChild(bd)
+  const close = () => bd.remove()
+  bd.addEventListener('click', e => { if (e.target === bd) close() })
+  bd.querySelector('[data-act="close"]').addEventListener('click', close)
+}
+
+function isValidEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || '').trim()) }
+function fieldInvalid(inputId, errId, on){
+  const i = document.getElementById(inputId), e = document.getElementById(errId)
+  if (i) i.classList.toggle('is-invalid', !!on)
+  if (e) e.classList.toggle('show', !!on)
+}
+function clearOnInput(scope, pairs){
+  pairs.forEach(([inputId, errId]) => {
+    const i = scope.querySelector('#' + inputId)
+    if (i) i.addEventListener('input', () => fieldInvalid(inputId, errId, false))
+  })
+}
+
+/* =============== DRAWER =============== */
+function openDrawer(){ document.getElementById('drawer').classList.add('open'); document.getElementById('drawerBackdrop').classList.add('open'); document.body.style.overflow = 'hidden' }
+function closeDrawer(){ document.getElementById('drawer').classList.remove('open'); document.getElementById('drawerBackdrop').classList.remove('open'); document.body.style.overflow = '' }
+
+/* Tab switcher */
+function switchTab(tabName){
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.tab === tabName))
+  document.querySelectorAll('.island-nav-item').forEach(el => el.classList.toggle('active', el.dataset.tab === tabName))
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-'+tabName))
+  closeDrawer()
+  window.scrollTo({ top:0, behavior:'smooth' })
+  try { localStorage.setItem('siwes-student-tab', tabName) } catch(e){}
+  if (!currentStudentId) return
+  if (tabName === 'status'){ loadStatus(); loadOrganization() }
+  if (tabName === 'logbook') loadLogbook()
+  if (tabName === 'documents') loadDocuments()
+  if (tabName === 'announcements') loadAnnouncements()
+  if (tabName === 'grade') loadGrade()
+}
+
+/* Spin animation for refresh buttons */
+const spinBtn = (btn) => { const ic = btn.querySelector('i'); if(!ic) return; ic.style.transition='transform 0.6s ease'; ic.style.transform='rotate(360deg)'; setTimeout(()=>{ ic.style.transition='none'; ic.style.transform='rotate(0deg)' },650) }
+
+function updateMainTopOffset(){
+  const shell=document.querySelector('.topbar-shell')
+  const isDesktop = window.innerWidth > 768
+  const off = isDesktop
+    ? (shell ? shell.getBoundingClientRect().bottom+22 : 100)
+    : 90
+  document.documentElement.style.setProperty('--main-top-offset', off+'px')
+}
+window.addEventListener('resize', updateMainTopOffset)
+
+/* Refresh with overlay shimmer (keeps existing content visible) */
+async function refreshWithOverlay(containerId, loadFn, sectionLabel){
+  const host = document.getElementById(containerId)
+  if (!host){ return loadFn() }
+  const hasContent = host.children.length > 0 && !host.querySelector('.sk')
+  if (hasContent) host.classList.add('refresh-host','refreshing')
+  try {
+    await loadFn()
+    showToast('info', `${sectionLabel || 'Data'} refreshed.`)
+  } finally { host.classList.remove('refreshing') }
+}
+
+/* Skeleton builders */
+function statCard(icon, iconCls, label, value){
+  return `<div class="stat-card"><div class="stat-icon${iconCls ? ' ' + iconCls : ''}"><i class="ph-bold ${icon}"></i></div><div class="stat-meta"><span class="stat-label">${escHtml(label)}</span><span class="stat-value">${value}</span></div></div>`
+}
+
+/* =============== STATUS (Stage 1) =============== */
+/* Read-only overview of this student's SIWES state:
+   placement status badge (+ rejection note / org + supervisor when approved),
+   logbook weeks submitted, and documents uploaded out of the 5 fixed categories. */
+const DOC_TYPES = ['placement_letter','id_card','passport_photo','introduction_letter','insurance_form']
+
+async function loadStatus(){
+  const host = document.getElementById('statusPlacement')
+  const docCard = document.getElementById('statusDocsCard')
+  if (!host || !currentStudentId) return
+  if (!host.children.length) host.innerHTML = `<div class="ac-sk"><div class="sk sk-circle"></div><div class="sk-meta"><span class="sk sk-line" style="width:45%"></span><span class="sk sk-line" style="width:65%"></span></div></div>`
+  if (!docCard.children.length) docCard.innerHTML = skStatGrid(1)
+  try {
+    const [
+      { data: placement, error: plcErr },
+      { count: docCount, error: docErr },
+      { count: logCount, error: logErr },
+      { data: settingsRow, error: setErr },
+    ] = await Promise.all([
+      supabase.from('placements')
+        .select('id, status, rejection_note, override_note, approved_date, created_at, organization_id, organizations(name, address)')
+        .eq('student_id', currentStudentId).order('created_at', { ascending:false }).limit(1).maybeSingle(),
+      supabase.from('documents').select('*', { count:'exact', head:true }).eq('student_id', currentStudentId),
+      supabase.from('logbook_entries').select('*', { count:'exact', head:true }).eq('student_id', currentStudentId),
+      supabase.from('settings').select('siwes_start_date, siwes_end_date, demo_current_date, updated_at').order('updated_at', { ascending:false }).limit(1).maybeSingle(),
+    ])
+    if (plcErr) throw plcErr
+    if (docErr) throw docErr
+    if (logErr) throw logErr
+    if (setErr) throw setErr
+
+    const status = placement?.status || null
+
+    /* Assigned supervisor — only meaningful once the placement is approved.
+       end_date null = the currently active assignment. */
+    let supervisorName = null
+    if (status === 'approved'){
+      const { data: asg } = await supabase.from('supervisor_assignments')
+        .select('supervisor_id, start_date').eq('student_id', currentStudentId).is('end_date', null)
+        .order('start_date', { ascending:false }).limit(1).maybeSingle()
+      if (asg?.supervisor_id){
+        const { data: sup } = await supabase.from('profiles').select('full_name').eq('id', asg.supervisor_id).maybeSingle()
+        supervisorName = sup?.full_name || null
+      }
+    }
+
+    /* ---- Placement card (hero — SIWES unit summary) ---- */
+    if (!placement){
+      host.innerHTML = `
+        <div class="status-hero">
+          <div class="ac-head">
+            <div class="ac-avatar"><i class="ph-bold ph-buildings"></i></div>
+            <div class="ac-head-meta">
+              <div class="ac-head-title">No placement yet</div>
+              <div class="ac-head-sub">You haven't selected an organization yet</div>
+            </div>
+          </div>
+          <div class="fact-grid">
+            <div class="fact-card full">
+              <div class="fact-icon"><i class="ph-bold ph-info"></i></div>
+              <div class="fact-meta">
+                <div class="fact-label">Next step</div>
+                <div class="fact-value">Pick a placement organization to start your SIWES.</div>
+              </div>
+            </div>
+          </div>
+          <div class="ac-actions"><button class="btn-primary" id="goOrgBtn"><i class="ph-bold ph-arrow-right"></i> Choose organization</button></div>
+        </div>`
+      const go = document.getElementById('goOrgBtn')
+      if (go) go.addEventListener('click', () => {
+        const acc = document.getElementById('orgAccordion')
+        if (acc){ acc.classList.add('open'); acc.scrollIntoView({ behavior:'smooth', block:'start' }) }
+      })
+    } else {
+      const orgName = placement.organizations?.name || null
+      let rows = ''
+      if (status === 'approved'){
+        rows += factCard('ph-buildings','Organization', orgName || '—')
+        rows += factCard('ph-chalkboard-teacher','Assigned Supervisor', supervisorName || 'Not assigned yet')
+        if (placement.approved_date) rows += factCard('ph-calendar-check','Approved On', formatDate(placement.approved_date))
+        if (placement.organizations?.address) rows += factCard('ph-map-pin','Address', placement.organizations.address)
+      } else if (status === 'rejected'){
+        rows += factCard('ph-buildings','Organization', orgName || '—')
+        rows += `<div class="fact-card full"><div class="fact-icon" style="background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.25);color:var(--error)"><i class="ph-bold ph-warning-circle"></i></div><div class="fact-meta"><div class="fact-label">Reason for rejection</div><div class="fact-value">${escHtml(placement.rejection_note || 'No reason provided.')}</div></div></div>`
+      } else {
+        rows += factCard('ph-buildings','Organization', orgName || '—')
+        rows += factCard('ph-hourglass-medium','What happens next','Awaiting review by the SIWES unit.')
+      }
+      if (placement.override_note) rows += factCard('ph-note','Admin Note', placement.override_note)
+
+      host.innerHTML = `
+        <div class="status-hero">
+          <div class="ac-head">
+            <div class="ac-avatar"><i class="ph-bold ph-seal-check"></i></div>
+            <div class="ac-head-meta">
+              <div class="ac-head-title">Placement Status</div>
+              <div class="ac-head-sub">Submitted ${formatDate(placement.created_at)}</div>
+            </div>
+            ${badge(status)}
+          </div>
+          <div class="fact-grid">${rows}</div>
+        </div>`
+    }
+
+    /* ---- Promoted documents-progress card (2nd position) ---- */
+    docCard.innerHTML = statCard('ph-files','blue','Documents Uploaded', `${docCount || 0} / ${DOC_TYPES.length}`)
+
+    /* ---- Logbook-weeks snapshot folds into the hero when approved ---- */
+    const startDate = settingsRow?.siwes_start_date || null
+    const demoDate = settingsRow?.demo_current_date || null
+    if (status === 'approved' && startDate){
+      const weeksElapsed = Math.max(0, currentWeekNumber(startDate, demoDate) || 0)
+      const heroFactGrid = host.querySelector('.fact-grid')
+      if (heroFactGrid) heroFactGrid.insertAdjacentHTML('beforeend', factCard('ph-notebook','Logbook Weeks Submitted', `${logCount || 0} / ${weeksElapsed}`))
+    }
+  } catch (err){
+    handleErr(err, 'Could not load your status')
+    host.innerHTML = `<div class="state-box"><i class="ph ph-warning-circle"></i>Could not load your status.</div>`
+    docCard.innerHTML = ''
+  }
+}
+
+function factCard(icon, label, value){
+  return `<div class="fact-card"><div class="fact-icon"><i class="ph-bold ${icon}"></i></div><div class="fact-meta"><div class="fact-label">${escHtml(label)}</div><div class="fact-value">${escHtml(value)}</div></div></div>`
+}
+
+
+/* =============== ORGANIZATION (Stage 2, folded into Status in Stage 4) =============== */
+/* Selection is only open while the student has no placement row, or while their
+   placement is still 'pending' (they may switch their mind → UPDATE, never a
+   second row). Once admin sets 'approved'/'rejected' this section is read-only.
+   Now lives as a collapsible accordion at the bottom of the Status tab: defaults
+   open when the student has no placement yet (nudge to act), collapsed once
+   they have an approved/pending placement (so it doesn't dominate every visit). */
+async function loadOrganization(){
+  const wrap = document.getElementById('orgRoot')
+  if (!wrap || !currentStudentId) return
+  if (!wrap.querySelector('#orgAccordion')){
+    wrap.innerHTML = `
+      <div class="profile-group" id="orgAccordion">
+        <div class="pg-head" id="orgAccordionHead">
+          <i class="ph-bold ph-buildings pg-icon"></i>
+          <span>Placement Organization</span>
+          <i class="ph-bold ph-caret-down pg-chev"></i>
+        </div>
+        <div class="pg-body"><div id="orgAccordionBody">${skCards(3)}</div></div>
+      </div>`
+    document.getElementById('orgAccordionHead').addEventListener('click', () => {
+      document.getElementById('orgAccordion').classList.toggle('open')
+    })
+  }
+  const host = document.getElementById('orgAccordionBody')
+  const accordion = document.getElementById('orgAccordion')
+  if (!host.children.length || host.querySelector('.sk')) host.innerHTML = skCards(3)
+  try {
+    const [
+      { data: placement, error: plcErr },
+      { data: orgs, error: orgErr },
+      { data: allPlacements, error: cntErr },
+    ] = await Promise.all([
+      supabase.from('placements')
+        .select('id, status, rejection_note, override_note, approved_date, created_at, organization_id, organizations(name, address, contact_person, contact_phone, contact_email, slots_available)')
+        .eq('student_id', currentStudentId).order('created_at', { ascending:false }).limit(1).maybeSingle(),
+      supabase.from('organizations')
+        .select('id, name, address, contact_person, contact_phone, contact_email, slots_available, slots_taken')
+        .eq('is_active', true).order('name', { ascending:true }),
+      supabase.from('placements').select('organization_id, status').in('status', ['pending','approved']),
+    ])
+    if (plcErr) throw plcErr
+    if (orgErr) throw orgErr
+    if (cntErr) throw cntErr
+
+    const status = placement?.status || null
+
+    // Default collapsed once a placement exists (approved/pending/rejected);
+    // default expanded to nudge the student to act if they have none yet.
+    // Only set this once (on first render) so it doesn't fight a user's manual toggle.
+    if (!accordion.dataset.autoStateSet){
+      accordion.classList.toggle('open', !placement)
+      accordion.dataset.autoStateSet = '1'
+    }
+
+    /* ---- Locked states: approved / rejected → read-only summary ---- */
+    if (status === 'approved' || status === 'rejected'){
+      const o = placement.organizations || {}
+      let rows = ''
+      if (status === 'approved'){
+        rows += factCard('ph-buildings','Organization', o.name || '—')
+        if (o.address) rows += factCard('ph-map-pin','Address', o.address)
+        if (o.contact_person) rows += factCard('ph-user','Contact Person', o.contact_person)
+        if (o.contact_phone) rows += factCard('ph-phone','Contact Phone', o.contact_phone)
+        if (o.contact_email) rows += factCard('ph-envelope-simple','Contact Email', o.contact_email)
+        if (placement.approved_date) rows += factCard('ph-calendar-check','Approved On', formatDate(placement.approved_date))
+      } else {
+        rows += factCard('ph-buildings','Organization', o.name || '—')
+        rows += `<div class="fact-card full"><div class="fact-icon" style="background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.25);color:var(--error)"><i class="ph-bold ph-warning-circle"></i></div><div class="fact-meta"><div class="fact-label">Reason for rejection</div><div class="fact-value">${escHtml(placement.rejection_note || 'No reason provided.')}</div></div></div>`
+      }
+      if (placement.override_note) rows += factCard('ph-note','Admin Note', placement.override_note)
+
+      host.innerHTML = `
+        <div class="banner-note">
+          <i class="ph-bold ${status === 'approved' ? 'ph-seal-check' : 'ph-x-circle'}"></i>
+          <div>
+            <div>${status === 'approved' ? 'Your placement has been approved.' : 'Your placement request was rejected.'}</div>
+            <div class="bn-sub">${status === 'approved' ? 'Only the SIWES unit can change your organization from here.' : 'Please contact the SIWES unit — only an admin can change your placement now.'}</div>
+          </div>
+        </div>
+        <div class="ac-card open">
+          <div class="ac-head" style="cursor:default">
+            <div class="ac-avatar"><i class="ph-bold ph-buildings"></i></div>
+            <div class="ac-head-meta">
+              <div class="ac-head-title">Placement Organization</div>
+              <div class="ac-head-sub">Submitted ${formatDate(placement.created_at)}</div>
+            </div>
+            ${badge(status)}
+          </div>
+          <div class="ac-body"><div class="fact-grid" style="padding-top:0">${rows}</div></div>
+        </div>`
+      return
+    }
+
+    /* ---- Selectable grid (no placement yet, or still pending) ---- */
+    const interest = {}
+    ;(allPlacements || []).forEach(r => { if (r.organization_id) interest[r.organization_id] = (interest[r.organization_id] || 0) + 1 })
+
+    let banner = ''
+    if (status === 'pending'){
+      banner = `
+        <div class="banner-note">
+          <i class="ph-bold ph-hourglass-medium"></i>
+          <div>
+            <div>Pending admin approval — ${escHtml(placement.organizations?.name || 'your selected organization')}</div>
+            <div class="bn-sub">You can still switch to a different organization until the SIWES unit reviews your request.</div>
+          </div>
+        </div>`
+    }
+
+    if (!orgs || !orgs.length){
+      host.innerHTML = banner + `<div class="state-box"><i class="ph ph-buildings"></i>No organizations are open for selection right now.</div>`
+      return
+    }
+
+    const cards = orgs.map(o => {
+      const count = interest[o.id] || 0
+      const slots = Number(o.slots_available || 0)
+      const competitive = slots > 0 && count >= slots
+      const isSel = placement && placement.organization_id === o.id
+      return `
+        <div class="org-card${isSel ? ' selected' : ''}" data-org="${escHtml(o.id)}" data-name="${escHtml(o.name || '')}" role="button" tabindex="0">
+          <div class="org-card-head">
+            <div class="ac-avatar"><i class="ph-bold ph-buildings"></i></div>
+            <div class="org-card-name">${escHtml(o.name || '—')}</div>
+          </div>
+          ${o.address ? `<div class="org-line"><i class="ph ph-map-pin"></i><span>${escHtml(o.address)}</span></div>` : ''}
+          ${o.contact_person ? `<div class="org-line"><i class="ph ph-user"></i><span>${escHtml(o.contact_person)}</span></div>` : ''}
+          ${o.contact_phone ? `<div class="org-line"><i class="ph ph-phone"></i><span>${escHtml(o.contact_phone)}</span></div>` : ''}
+          ${o.contact_email ? `<div class="org-line"><i class="ph ph-envelope-simple"></i><span>${escHtml(o.contact_email)}</span></div>` : ''}
+          <div class="org-foot">
+            <span class="org-pill"><i class="ph-bold ph-seat"></i>${slots} slot${slots === 1 ? '' : 's'} available</span>
+            <span class="org-pill muted"><i class="ph-bold ph-users-three"></i>${count} student${count === 1 ? '' : 's'} interested</span>
+            ${isSel ? `<span class="selected-flag"><i class="ph-bold ph-check-circle"></i>Your selection</span>` : ''}
+          </div>
+          ${competitive ? `<div class="inline-warn" style="margin-bottom:0"><i class="ph-bold ph-warning"></i>Competitive — consider a backup option.</div>` : ''}
+        </div>`
+    }).join('')
+
+    host.innerHTML = banner + `
+      <div class="section-header"><div class="section-title">Available Organizations</div></div>
+      <div class="org-grid">${cards}</div>`
+
+    host.querySelectorAll('.org-card').forEach(card => {
+      const pick = () => selectOrganization(card.dataset.org, card.dataset.name, placement)
+      card.addEventListener('click', pick)
+      card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); pick() } })
+    })
+  } catch (err){
+    handleErr(err, 'Could not load organizations')
+    host.innerHTML = `<div class="state-box"><i class="ph ph-warning-circle"></i>Could not load organizations.</div>`
+  }
+}
+
+async function selectOrganization(orgId, orgName, placement){
+  if (!orgId) return
+  if (placement && placement.organization_id === orgId && placement.status === 'pending'){
+    showToast('info', 'This organization is already your pending selection.')
+    return
+  }
+  const ok = await showConfirm(
+    'Confirm Organization',
+    `Select ${orgName || 'this organization'} for your placement? Your request will be sent to the SIWES unit for approval.`,
+    'Select', 'no-sheet')
+  if (!ok) return
+  try {
+    if (placement && placement.status === 'pending'){
+      // Switching choice while still pending — update, never insert a duplicate row.
+      const { error } = await supabase.from('placements')
+        .update({ organization_id: orgId }).eq('id', placement.id)
+      if (error) throw error
+      showToast('success', 'Your organization choice has been updated.')
+    } else {
+      const { error } = await supabase.from('placements')
+        .insert({ student_id: currentStudentId, organization_id: orgId, status: 'pending' })
+      if (error) throw error
+      showToast('success', 'Organization selected — pending admin approval.')
+    }
+    await loadOrganization()
+    loadStatus()
+  } catch (err){
+    handleErr(err, 'Could not save your organization selection')
+  }
+}
+
+/* =============== LOGBOOK (Stage 2) =============== */
+/* Current week = floor((today - siwes_start_date)/7) + 1. Entries are locked
+   once submitted — no edit, no delete; only the un-submitted current week
+   shows a form.
+   `demoDate` (from settings.demo_current_date) lets an admin simulate "today"
+   for demo purposes without waiting real months — when set, it stands in for
+   new Date() here. Real timestamps written to the DB are never affected. */
+function currentWeekNumber(startDate, demoDate){
+  if (!startDate) return null
+  const start = new Date(startDate)
+  if (isNaN(start)) return null
+  const today = demoDate ? new Date(demoDate) : new Date()
+  if (isNaN(today)) return null
+  const wk = Math.floor((today - start) / (7*24*60*60*1000)) + 1
+  return wk >= 1 ? wk : null
+}
+
+async function loadLogbook(){
+  const host = document.getElementById('logbookRoot')
+  if (!host || !currentStudentId) return
+  if (!host.children.length) host.innerHTML = skCards(3)
+  try {
+    const [
+      { data: placement, error: plcErr },
+      { data: settingsRow, error: setErr },
+      { data: entries, error: entErr },
+    ] = await Promise.all([
+      supabase.from('placements').select('id, status, organizations(name)')
+        .eq('student_id', currentStudentId).order('created_at', { ascending:false }).limit(1).maybeSingle(),
+      supabase.from('settings').select('siwes_start_date, siwes_end_date, demo_current_date, updated_at').order('updated_at', { ascending:false }).limit(1).maybeSingle(),
+      supabase.from('logbook_entries').select('id, week_number, entry_text, submitted_at')
+        .eq('student_id', currentStudentId).order('week_number', { ascending:false }),
+    ])
+    if (plcErr) throw plcErr
+    if (setErr) throw setErr
+    if (entErr) throw entErr
+
+    const status = placement?.status || null
+    const startDate = settingsRow?.siwes_start_date || null
+    const demoDate = settingsRow?.demo_current_date || null
+    const week = currentWeekNumber(startDate, demoDate)
+
+    let top = ''
+    if (status !== 'approved' || !startDate || !week){
+      top = `<div class="state-box"><i class="ph ph-notebook"></i>Your logbook will open once your placement is approved.${startDate && week === null && status === 'approved' ? `<div class="disclaimer" style="text-align:center">SIWES begins on ${formatDate(startDate)}.</div>` : ''}</div>`
+    } else {
+      const done = (entries || []).some(e => Number(e.week_number) === week)
+      if (done){
+        top = `
+          <div class="banner-note">
+            <i class="ph-bold ph-check-circle"></i>
+            <div>
+              <div>Week ${week} entry submitted.</div>
+              <div class="bn-sub">Submitted entries are locked. Your next entry opens in week ${week + 1}.</div>
+            </div>
+          </div>`
+      } else {
+        top = `
+          <div class="form-wrap" id="logbookFormWrap">
+            <div class="section-header"><div class="section-title">Week ${week} Entry</div><span class="badge pending">Due</span></div>
+            <div class="form-grid">
+              <div class="form-field full">
+                <label class="form-label" for="logEntryText">What did you do this week?</label>
+                <textarea class="form-textarea" id="logEntryText" placeholder="Describe the tasks, skills and observations from week ${week}…" style="min-height:140px"></textarea>
+                <div class="field-error" id="logEntryTextErr">Please describe your week before submitting.</div>
+              </div>
+            </div>
+            <div class="disclaimer">Once submitted, this entry is locked — it cannot be edited or deleted.</div>
+            <div class="form-actions">
+              <button class="btn-primary btn" id="logSubmitBtn"><i class="ph-bold ph-paper-plane-tilt btn-icon"></i><span class="btn-text">Submit Week ${week}</span><span class="btn-dots"><span></span><span></span><span></span></span></button>
+            </div>
+          </div>`
+      }
+    }
+
+    /* ---- Past entries timeline (newest first, read-only) ---- */
+    let list = ''
+    if (!entries || !entries.length){
+      list = `<div class="state-box"><i class="ph ph-clock-counter-clockwise"></i>No logbook entries submitted yet.</div>`
+    } else {
+      list = `<div class="ac-list">` + entries.map((e, i) => `
+        <div class="ac-card${i === 0 ? ' open' : ''}" data-ac>
+          <div class="ac-head">
+            <div class="ac-avatar">W${escHtml(e.week_number)}</div>
+            <div class="ac-head-meta">
+              <div class="ac-head-title">Week ${escHtml(e.week_number)}</div>
+              <div class="ac-head-sub">Submitted ${formatDateTime(e.submitted_at)}</div>
+            </div>
+            <span class="badge locked"><i class="ph-bold ph-lock-simple"></i> Locked</span>
+          </div>
+          <div class="ac-body">
+            <div class="log-text" style="padding-top:4px">${escHtml(e.entry_text || '')}</div>
+          </div>
+        </div>`).join('') + `</div>`
+    }
+
+    host.innerHTML = top + `<div class="section-header" style="margin-top:22px"><div class="section-title">Submitted Entries</div></div>` + list
+
+    host.querySelectorAll('[data-ac] .ac-head').forEach(h => {
+      h.addEventListener('click', () => h.parentElement.classList.toggle('open'))
+    })
+
+    const btn = document.getElementById('logSubmitBtn')
+    if (btn) btn.addEventListener('click', () => submitLogbookEntry(week, btn))
+    const ta = document.getElementById('logEntryText')
+    if (ta) ta.addEventListener('input', () => fieldInvalid('logEntryText','logEntryTextErr', false))
+  } catch (err){
+    handleErr(err, 'Could not load your logbook')
+    host.innerHTML = `<div class="state-box"><i class="ph ph-warning-circle"></i>Could not load your logbook.</div>`
+  }
+}
+
+async function submitLogbookEntry(week, btn){
+  const ta = document.getElementById('logEntryText')
+  const text = (ta?.value || '').trim()
+  if (!text){ fieldInvalid('logEntryText','logEntryTextErr', true); ta?.focus(); return }
+  const ok = await showConfirm('Submit Week ' + week, 'Submit this entry? Once submitted it is locked and cannot be edited or deleted.', 'Submit', 'no-sheet')
+  if (!ok) return
+  setBtnLoading(btn, true)
+  try {
+    const { error } = await supabase.from('logbook_entries')
+      .insert({ student_id: currentStudentId, week_number: week, entry_text: text })
+    if (error) throw error
+    showToast('success', `Week ${week} entry submitted.`)
+    await loadLogbook()
+    loadStatus()
+  } catch (err){
+    handleErr(err, 'Could not submit your logbook entry')
+  } finally { setBtnLoading(btn, false) }
+}
+
+/* =============== DOCUMENTS (Stage 3) =============== */
+const DOC_CATEGORIES = [
+  { type:'placement_letter',      label:'Placement Letter',       icon:'ph-file-text',
+    exts:['pdf','doc','docx'], accept:'.pdf,.doc,.docx', maxBytes:10*1024*1024, maxLabel:'10MB' },
+  { type:'id_card',               label:'ID Card',                icon:'ph-identification-card',
+    exts:['jpg','jpeg','png','pdf'], accept:'.jpg,.jpeg,.png,.pdf', maxBytes:5*1024*1024, maxLabel:'5MB' },
+  { type:'passport_photo',        label:'Passport Photo',         icon:'ph-image',
+    exts:['jpg','jpeg','png'], accept:'.jpg,.jpeg,.png', maxBytes:2*1024*1024, maxLabel:'2MB' },
+  { type:'introduction_letter',   label:'Introduction Letter',    icon:'ph-envelope-open',
+    exts:['pdf','doc','docx'], accept:'.pdf,.doc,.docx', maxBytes:10*1024*1024, maxLabel:'10MB' },
+  { type:'insurance_form',        label:'Insurance Form',         icon:'ph-shield-check',
+    exts:['pdf','doc','docx'], accept:'.pdf,.doc,.docx', maxBytes:10*1024*1024, maxLabel:'10MB' },
+]
+const DOC_CATEGORY_BY_TYPE = Object.fromEntries(DOC_CATEGORIES.map(c => [c.type, c]))
+const STORAGE_BUCKET = 'student-documents'
+let __pendingUploadType = null
+
+async function loadDocuments(){
+  const host = document.getElementById('documentsRoot')
+  if (!host || !currentStudentId) return
+  host.innerHTML = `<div class="doc-grid">${skCards(5)}</div>`
+  try {
+    const { data, error } = await supabase.from('documents')
+      .select('file_type, file_url, file_name, uploaded_at').eq('student_id', currentStudentId)
+    if (error) throw error
+    const byType = {}
+    ;(data || []).forEach(d => { byType[d.file_type] = d })
+
+    host.innerHTML = `<div class="doc-grid">${DOC_CATEGORIES.map(cat => {
+      const doc = byType[cat.type]
+      const uploaded = !!doc
+      return `<div class="doc-card${uploaded ? ' is-uploaded' : ''}">
+        <div class="doc-card-head">
+          <div class="doc-icon"><i class="ph-bold ${cat.icon}"></i></div>
+          <div style="min-width:0">
+            <div class="doc-card-name">${escHtml(cat.label)}</div>
+            <div class="doc-card-status${uploaded ? ' uploaded' : ''}">
+              <i class="ph-bold ${uploaded ? 'ph-check-circle' : 'ph-clock'}"></i>
+              ${uploaded ? 'Uploaded ' + formatDate(doc.uploaded_at) : 'Not uploaded yet'}
+            </div>
+          </div>
+        </div>
+        ${uploaded ? `<div class="doc-card-file"><i class="ph ph-paperclip"></i><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(doc.file_name || 'file')}</span></div>` : ''}
+        <button class="btn-secondary btn" style="width:100%;justify-content:center" data-doc-type="${cat.type}" data-doc-label="${escHtml(cat.label)}">
+          <i class="ph-bold ${uploaded ? 'ph-arrows-clockwise' : 'ph-upload-simple'} btn-icon"></i>
+          <span class="btn-text">${uploaded ? 'Replace' : 'Upload'}</span>
+          <span class="btn-dots"><span></span><span></span><span></span></span>
+        </button>
+      </div>`
+    }).join('')}</div>`
+
+    host.querySelectorAll('[data-doc-type]').forEach(btn => {
+      btn.addEventListener('click', () => triggerDocUpload(btn.dataset.docType, btn.dataset.docLabel, btn))
+    })
+  } catch (err){
+    handleErr(err, 'Could not load your documents')
+    host.innerHTML = `<div class="state-box"><i class="ph ph-warning-circle"></i>Could not load your documents.</div>`
+  }
+}
+
+function triggerDocUpload(fileType, label, btn){
+  __pendingUploadType = { fileType, label, btn }
+  const input = document.getElementById('docFileInput')
+  const cat = DOC_CATEGORY_BY_TYPE[fileType]
+  input.accept = cat ? cat.accept : ''
+  input.value = ''
+  input.onchange = () => {
+    const file = input.files && input.files[0]
+    if (file) uploadDocument(file)
+  }
+  input.click()
+}
+
+function formatBytes(bytes){
+  if (!bytes && bytes !== 0) return '—'
+  const mb = bytes / (1024*1024)
+  return mb >= 1 ? mb.toFixed(1) + 'MB' : Math.max(1, Math.round(bytes/1024)) + 'KB'
+}
+
+/* Stylish on-brand violation dialog for upload rule breaks — reuses the
+   modal-card/modal-backdrop system, distinct from showInfoModal via a
+   colored warning icon header. Never proceeds with any upload on trigger. */
+function showUploadViolationModal(title, message){
+  const bd = document.createElement('div')
+  bd.className = 'modal-backdrop'
+  bd.innerHTML = `
+    <div class="modal-card no-sheet">
+      <div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;margin-bottom:6px">
+        <div style="width:56px;height:56px;border-radius:50%;background:rgba(239,68,68,0.12);border:1.5px solid rgba(239,68,68,0.25);color:var(--error);display:flex;align-items:center;justify-content:center;font-size:28px">
+          <i class="ph-bold ph-warning-circle"></i>
+        </div>
+        <div class="modal-title" style="margin-bottom:0">${escHtml(title)}</div>
+      </div>
+      <div class="modal-msg" style="text-align:center">${escHtml(message)}</div>
+      <div class="modal-actions" style="justify-content:center">
+        <button class="btn-primary" data-act="close">Got it</button>
+      </div>
+    </div>`
+  document.body.appendChild(bd)
+  const close = () => bd.remove()
+  bd.addEventListener('click', e => { if (e.target === bd) close() })
+  bd.querySelector('[data-act="close"]').addEventListener('click', close)
+}
+
+async function uploadDocument(file){
+  const pending = __pendingUploadType
+  if (!pending || !currentStudentId) return
+  const { fileType, label, btn } = pending
+  const cat = DOC_CATEGORY_BY_TYPE[fileType]
+
+  // Validate extension AND size in JS — the input's accept attribute is a
+  // convenience filter for the OS picker only and can be bypassed (drag-drop,
+  // "All Files" override, etc.), so it is never trusted alone.
+  const ext = (file.name.split('.').pop() || '').toLowerCase()
+  if (cat && !cat.exts.includes(ext)){
+    __pendingUploadType = null
+    const allowed = cat.exts.map(e => e.toUpperCase()).join(', ')
+    showUploadViolationModal(
+      'Unsupported file type',
+      `${label} must be one of: ${allowed}. The file you picked is a .${ext || '?'} file.`
+    )
+    return
+  }
+  if (cat && file.size > cat.maxBytes){
+    __pendingUploadType = null
+    showUploadViolationModal(
+      'File too large',
+      `${label} must be under ${cat.maxLabel}. Your file is ${formatBytes(file.size)}.`
+    )
+    return
+  }
+
+  setBtnLoading(btn, true)
+  try {
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+    const path = `${currentStudentId}/${fileType}/${Date.now()}_${safeName}`
+    const { error: upErr } = await supabase.storage.from(STORAGE_BUCKET).upload(path, file, { upsert: true })
+    if (upErr) throw upErr
+    const { data: pub } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path)
+    const fileUrl = pub?.publicUrl || path
+
+    const { error: dbErr } = await supabase.from('documents')
+      .upsert({
+        student_id: currentStudentId,
+        file_type: fileType,
+        file_url: fileUrl,
+        file_name: file.name,
+        uploaded_at: new Date().toISOString(),
+      }, { onConflict: 'student_id,file_type' })
+    if (dbErr) throw dbErr
+
+    showToast('success', `${label} uploaded.`)
+    await loadDocuments()
+    loadStatus()
+  } catch (err){
+    handleErr(err, 'Could not upload your document')
+  } finally {
+    setBtnLoading(btn, false)
+    __pendingUploadType = null
+  }
+}
+
+/* =============== ANNOUNCEMENTS (Stage 3) =============== */
+async function loadAnnouncements(){
+  const host = document.getElementById('announcementsRoot')
+  if (!host || !currentStudentId) return
+  host.innerHTML = skCards(4)
+  try {
+    const { data, error } = await supabase.from('announcements')
+      .select('id, title, body, created_at').order('created_at', { ascending:false })
+    if (error) throw error
+
+    if (!data || data.length === 0){
+      host.innerHTML = `<div class="state-box"><i class="ph ph-megaphone"></i>No announcements yet. Check back later.</div>`
+      return
+    }
+
+    host.innerHTML = `<div class="ac-list ac-list-flat">${data.map(a => `
+      <div class="annc-card">
+        <div class="annc-head-row">
+          <div class="annc-title"><i class="ph-bold ph-megaphone"></i>${escHtml(a.title)}</div>
+          <div class="annc-date">${formatDateTime(a.created_at)}</div>
+        </div>
+        <div class="annc-body">${escHtml(a.body)}</div>
+      </div>`).join('')}</div>`
+  } catch (err){
+    handleErr(err, 'Could not load announcements')
+    host.innerHTML = `<div class="state-box"><i class="ph ph-warning-circle"></i>Could not load announcements.</div>`
+  }
+}
+
+/* =============== GRADE (Stage 3) =============== */
+const GRADE_CLASS_CSS = {
+  'Excellent':'gb-excellent', 'Very Good':'gb-very-good', 'Good':'gb-good',
+  'Fair':'gb-fair', 'Poor':'gb-poor',
+}
+const RUBRIC_FIELDS = [
+  { key:'punctuality_score', max:15, label:'Punctuality & Attendance' },
+  { key:'logbook_score',     max:20, label:'Logbook Quality' },
+  { key:'skill_score',       max:30, label:'Practical Skill / Performance' },
+  { key:'conduct_score',     max:15, label:'Conduct & Discipline' },
+  { key:'initiative_score',  max:10, label:'Initiative & Attentiveness' },
+  { key:'visits_score',      max:10, label:"Supervisor's Overall Visit Impression" },
+]
+
+async function loadGrade(){
+  const host = document.getElementById('gradeRoot')
+  if (!host || !currentStudentId) return
+  host.innerHTML = skCards(3)
+  try {
+    const { data: grade, error } = await supabase.from('grades')
+      .select('*').eq('student_id', currentStudentId).maybeSingle()
+    if (error) throw error
+
+    if (!grade){
+      host.innerHTML = `<div class="state-box"><i class="ph ph-medal"></i>Your grade will appear here once your supervisor submits it.</div>`
+      return
+    }
+
+    const badgeCls = GRADE_CLASS_CSS[grade.classification] || 'gb-good'
+    host.innerHTML = `
+      <div class="grade-total-card">
+        <div>
+          <div class="grade-total-value">${Number(grade.total_score ?? 0)}<span style="font-size:18px;color:var(--text-muted);font-weight:600">/100</span></div>
+          <div class="grade-total-label">Total Score</div>
+        </div>
+        <span class="grade-badge ${badgeCls}">${escHtml(grade.classification || '—')}</span>
+      </div>
+      <div class="rubric-grid">${RUBRIC_FIELDS.map(f => {
+        const v = Number(grade[f.key] ?? 0)
+        const pct = Math.max(0, Math.min(100, (v / f.max) * 100))
+        return `<div class="rubric-card">
+          <div class="rubric-label">${escHtml(f.label)}</div>
+          <div class="rubric-score-row"><span class="rubric-score">${v}</span><span class="rubric-max">/ ${f.max}</span></div>
+          <div class="rubric-bar-track"><div class="rubric-bar-fill" style="width:${pct}%"></div></div>
+        </div>`
+      }).join('')}</div>
+      <div class="grade-note-card">
+        <div class="grade-note-label">Supervisor's Assessment Note</div>
+        <div class="grade-note-text">${escHtml(grade.assessment_note || '')}</div>
+      </div>`
+  } catch (err){
+    handleErr(err, 'Could not load your grade')
+    host.innerHTML = `<div class="state-box"><i class="ph ph-warning-circle"></i>Could not load your grade.</div>`
+  }
+}
+
+/* =============== AUTH =============== */
+async function confirmLogout(){
+  const ok = await showConfirm('Log Out', "Are you sure you want to log out? You'll need to sign in again to access the dashboard.", 'Log Out', 'no-sheet')
+  if (ok) doLogout()
+}
+async function doLogout(){ await supabase.auth.signOut(); window.location.href='index.html' }
+
+/* =============== INIT =============== */
+async function init(){
+  renderNav()
+  try {
+    // Falls back silently to the default 'status' tab if a returning user has a
+    // stale/removed tab name saved (e.g. the old 'organization' tab).
+    const savedTab = localStorage.getItem('siwes-student-tab')
+    if (savedTab && document.getElementById('page-'+savedTab)) switchTab(savedTab)
+  } catch(e){}
+  initMedBg()
+  document.getElementById('menuBtn').addEventListener('click', openDrawer)
+  document.getElementById('drawerClose').addEventListener('click', closeDrawer)
+  document.getElementById('drawerBackdrop').addEventListener('click', closeDrawer)
+  document.getElementById('logoutBtn').addEventListener('click', confirmLogout)
+  document.getElementById('logoutBtnDrawer').addEventListener('click', confirmLogout)
+
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session){ window.location.href='index.html'; return }
+  currentUser = session.user
+
+  // SIWES schema: role, full_name and must_change_password live on the profiles table.
+  // maybeSingle() so a missing profile row resolves to null instead of throwing.
+  const { data: profile, error: profileErr } = await supabase
+    .from('profiles').select('role, full_name, must_change_password').eq('id', currentUser.id).maybeSingle()
+  if (profileErr || !profile || profile.role !== 'student'){
+    // Not a student (or no profile row) — sign out so no partially-authed state lingers.
+    await supabase.auth.signOut()
+    window.location.href='index.html'
+    return
+  }
+  if (profile.must_change_password){
+    // The auth page (index.html) owns the must-change-password modal flow; keep the
+    // session intact and bounce back so it can prompt for a new password there.
+    window.location.href='index.html'
+    return
+  }
+
+  // students.id is the same uuid as profiles.id (both reference auth.users).
+  currentStudentId = currentUser.id
+  setWelcomeMessages(profile.full_name); setupIslandProfile(profile.full_name)
+
+  document.getElementById('authScreen').style.display='none'
+  document.getElementById('app').style.display='block'
+  updateMainTopOffset()
+
+  document.getElementById('refreshStatusBtn').addEventListener('click', async e => {
+    spinBtn(e.currentTarget)
+    const host = document.getElementById('page-status')
+    const hasContent = host && host.querySelector('.status-hero, .ac-card')
+    if (hasContent) host.classList.add('refresh-host','refreshing')
+    try {
+      await Promise.all([loadStatus(), loadOrganization()])
+      showToast('info', 'Status refreshed.')
+    } finally { if (host) host.classList.remove('refreshing') }
+  })
+  document.getElementById('refreshLogbookBtn').addEventListener('click', e => { spinBtn(e.currentTarget); refreshWithOverlay('logbookRoot', loadLogbook, 'Logbook') })
+  document.getElementById('refreshDocumentsBtn').addEventListener('click', e => { spinBtn(e.currentTarget); refreshWithOverlay('documentsRoot', loadDocuments, 'Documents') })
+  document.getElementById('refreshAnnouncementsBtn').addEventListener('click', e => { spinBtn(e.currentTarget); refreshWithOverlay('announcementsRoot', loadAnnouncements, 'Announcements') })
+  document.getElementById('refreshGradeBtn').addEventListener('click', e => { spinBtn(e.currentTarget); refreshWithOverlay('gradeRoot', loadGrade, 'Grade') })
+
+  loadStatus()
+  // Organization section always lives inside the Status tab now, so it loads
+  // alongside Status regardless of which tab is currently active on first paint.
+  loadOrganization()
+  // Other tabs load on first open, then refresh each time they're revisited.
+  if (document.getElementById('page-logbook').classList.contains('active')) loadLogbook()
+  if (document.getElementById('page-documents').classList.contains('active')) loadDocuments()
+  if (document.getElementById('page-announcements').classList.contains('active')) loadAnnouncements()
+  if (document.getElementById('page-grade').classList.contains('active')) loadGrade()
+}
+
+/* =============== HOVER + ARROW-KEY SCROLL =============== */
+;(function setupHoverArrowScroll(){
+  const SCROLL_STEP = 80
+  let hoveredPanel = null
+  const navScrollEl = () => document.getElementById('islandNavList')
+  const navHoverTarget = document.getElementById('islandNav')
+  const mainHoverTarget = document.querySelector('main.main')
+
+  if (navHoverTarget){
+    navHoverTarget.addEventListener('mouseenter', () => { hoveredPanel = 'nav' })
+    navHoverTarget.addEventListener('mouseleave', () => { if (hoveredPanel === 'nav') hoveredPanel = null })
+    navHoverTarget.addEventListener('wheel', (e) => {
+      const scrollEl = navScrollEl()
+      if (!scrollEl) return
+      scrollEl.scrollTop += e.deltaY
+      e.preventDefault()
+    }, { passive:false })
+  }
+  if (mainHoverTarget){
+    mainHoverTarget.addEventListener('mouseenter', () => { hoveredPanel = 'main' })
+    mainHoverTarget.addEventListener('mouseleave', () => { if (hoveredPanel === 'main') hoveredPanel = null })
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return
+    if (!hoveredPanel) return
+    const tag = (document.activeElement && document.activeElement.tagName) || ''
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || (document.activeElement && document.activeElement.isContentEditable)) return
+    const delta = e.key === 'ArrowDown' ? SCROLL_STEP : -SCROLL_STEP
+    if (hoveredPanel === 'nav' && navScrollEl()){
+      navScrollEl().scrollBy({ top: delta, behavior: 'smooth' })
+      e.preventDefault()
+    } else if (hoveredPanel === 'main'){
+      window.scrollBy({ top: delta, behavior: 'smooth' })
+      e.preventDefault()
+    }
+  })
+})()
+
+init()
+</script>
+</body>
+</html>
